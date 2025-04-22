@@ -1,0 +1,12 @@
+/* Style for the drop cap */
+.bio-paragraph::first-letter {
+  /* Add existing drop cap styles here (e.g., font-size, float, margin) */
+  color: yellow; /* Sets the drop cap color to yellow */
+}
+
+/* Style for the bold text within the bio */
+.bio-paragraph strong {
+  color: yellow; /* Sets the bold text color to yellow */
+}
+
+/* Add any other existing styles for .bio-paragraph or other elements */

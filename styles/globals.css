@@ -1,0 +1,327 @@
+/* Import Fonts (Example: Montserrat and Inter from Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@700;900&display=swap');
+
+/* CSS Variables */
+:root {
+  --color-background: #111111;
+  --color-text: #ffffff;
+  --color-primary: #f0b429; /* Example: Gold Accent */
+  /* --color-primary: #e53e3e; */ /* Example: Red Accent */
+  --color-card-bg: #1a1a1a;
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --spacing-unit: 8px;
+  --border-radius: 4px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+/* Basic Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Global Styles */
+html,
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin-bottom: calc(var(--spacing-unit) * 2);
+  color: var(--color-primary);
+}
+
+h1 { font-size: 2.5rem; font-weight: 900; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-text);
+}
+
+p {
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 2);
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-primary { color: var(--color-primary); }
+.mb-1 { margin-bottom: var(--spacing-unit); }
+.mb-2 { margin-bottom: calc(var(--spacing-unit) * 2); }
+.mb-3 { margin-bottom: calc(var(--spacing-unit) * 3); }
+.mb-4 { margin-bottom: calc(var(--spacing-unit) * 4); }
+.mt-1 { margin-top: var(--spacing-unit); }
+.mt-2 { margin-top: calc(var(--spacing-unit) * 2); }
+.mt-3 { margin-top: calc(var(--spacing-unit) * 3); }
+.mt-4 { margin-top: calc(var(--spacing-unit) * 4); }
+.p-1 { padding: var(--spacing-unit); }
+.p-2 { padding: calc(var(--spacing-unit) * 2); }
+.p-3 { padding: calc(var(--spacing-unit) * 3); }
+.p-4 { padding: calc(var(--spacing-unit) * 4); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+
+.btn {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+  border: none;
+  border-radius: var(--border-radius);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 80%, white);
+  transform: translateY(-2px);
+}
+
+/* Basic Grid for Cards */
+.grid {
+  display: grid;
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+@media (min-width: 600px) {
+  .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px) {
+  .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Transitions / Animations */
+.fade-in {
+  opacity: 0;
+  animation: fadeInAnimation 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeInAnimation {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Add more specific component styles below or in separate files/modules if preferred */
+/* Example: Navbar styles */
+.navbar {
+  background-color: rgba(17, 17, 17, 0.8); /* Slightly transparent */
+  backdrop-filter: blur(5px);
+  padding: calc(var(--spacing-unit) * 2) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--color-card-bg);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+.nav-links a {
+  color: var(--color-text);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.nav-links a:hover,
+.nav-links a.active { /* Add 'active' class via JS/Next.js Link */
+  color: var(--color-primary);
+}
+
+/* Example: Footer styles */
+.footer {
+  background-color: var(--color-card-bg);
+  padding: calc(var(--spacing-unit) * 3) 0;
+  margin-top: calc(var(--spacing-unit) * 5);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.footer .social-links {
+  margin-top: var(--spacing-unit);
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.footer .social-links a {
+  font-size: 1.5rem; /* Adjust icon size */
+}
+
+/* Card Component Style */
+.card {
+  background-color: var(--color-card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex; /* Use flexbox for content alignment */
+  flex-direction: column; /* Stack content vertically */
+  max-width: 800px; /* Adjust this value as needed */
+  max-height:fit-content;
+  /* If you want the card centered within its grid cell, uncomment below */
+  /* margin-left: auto; */
+  /* margin-right: auto; */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.card-image img {
+  width: 400%;
+  height: 200px; /* Fixed height for consistency */
+  object-fit: cover; /* Crop image nicely */
+}
+
+.card-content {
+  padding: calc(var(--spacing-unit) * 2);
+  flex-grow: 1; /* Allow content to fill remaining space */
+  display: flex;
+  flex-direction: column;
+}
+
+.card-content h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-unit);
+  font-size: 1.2rem;
+}
+
+.card-content p {
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-unit);
+  flex-grow: 1; /* Push actions to the bottom */
+}
+
+.card-actions {
+  margin-top: auto; /* Push actions to the bottom */
+  padding-top: var(--spacing-unit);
+}
+
+/* Lightbox styles (basic placeholder) */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+/* Form Styles */
+.contact-form label {
+    display: block;
+    margin-bottom: var(--spacing-unit);
+    font-weight: 700;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
+    width: 100%;
+    padding: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    background-color: var(--color-card-bg);
+    border: 1px solid color-mix(in srgb, var(--color-card-bg) 80%, white);
+    border-radius: var(--border-radius);
+    color: var(--color-text);
+    font-family: var(--font-body);
+}
+
+.contact-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.contact-form button {
+    margin-top: var(--spacing-unit);
+}
+
+/* QR Code Container */
+.qr-code-container {
+    background-color: white; /* QR codes need a light background */
+    padding: var(--spacing-unit);
+    display: inline-block; /* Fit content */
+    border-radius: var(--border-radius);
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+/* Bio Paragraph Styles */
+.bio-paragraph::first-letter {
+  /* Add any other drop cap styles here (e.g., font-size, float, margin, line-height) */
+  color: yellow; /* Sets the drop cap color to yellow */
+  /* Example other styles you might need: */
+  /* float: left; */
+  /* font-size: 4em; */
+  /* line-height: 0.8; */
+  /* margin-right: 0.05em; */
+  /* font-family: var(--font-heading); */
+}
+
+.bio-paragraph strong {
+  color: yellow; /* Sets the bold text color to yellow */
+}

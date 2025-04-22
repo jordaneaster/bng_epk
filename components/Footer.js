@@ -42,7 +42,7 @@ export default function Footer() {
           <QRCodeGenerator url={epkUrl} />
         </div>
         
-        <p className="mt-3">© {currentYear} ARTIST NAME. All Rights Reserved.</p>
+        <p className="mt-3">© {currentYear} BNG NappSakk. All Rights Reserved.</p>
       </div>
     </footer>
   );

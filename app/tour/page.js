@@ -8,6 +8,7 @@ export default function Tour() {
       <div className="container">
         <h1 className="text-center mb-4">Tour Dates</h1>
         
+        {/*
         <div className="grid grid-cols-1 grid-cols-3">
           {tourDates.map((show, index) => (
             <div key={index} className="fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -21,6 +22,8 @@ export default function Tour() {
             </div>
           ))}
         </div>
+        */}
+        <p className="text-center text-xl mt-8">Tour dates coming soon!</p>
       </div>
     </Layout>
   );

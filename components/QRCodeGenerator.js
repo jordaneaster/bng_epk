@@ -1,20 +1,26 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { QRCodeCanvas } from 'qrcode.react'; // Import the component
 
-export default function QRCodeGenerator({ url }) {
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  
-  useEffect(() => {
-    // Using the Google Charts API to generate QR code
-    const encodedUrl = encodeURIComponent(url);
-    setQrCodeUrl(`https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=200x200`);
-  }, [url]);
-  
+export default function QRCodeGenerator({ url, size = 150 }) { // Added size prop with default
+
   return (
     <div className="text-center">
       <h3 className="mb-2">Scan EPK</h3>
-      <div className="qr-code-container">
-        {qrCodeUrl && <img src={qrCodeUrl} alt="EPK QR Code" width={150} height={150} />}
+      <div className="qr-code-container" style={{ display: 'inline-block', background: 'white', padding: '5px' }}> {/* Optional: Add padding/background */}
+        {/* Render QRCodeCanvas if url is provided */}
+        {url ? (
+          <QRCodeCanvas
+            value={url}
+            size={size}
+            bgColor={"#ffffff"}
+            fgColor={"#000000"}
+            level={"L"} // Error correction level (L, M, Q, H)
+            includeMargin={false} // Set to true if you want a margin
+          />
+        ) : (
+          // Optional: Show a loading or placeholder state
+          <p>Loading QR Code...</p>
+        )}
       </div>
     </div>
   );

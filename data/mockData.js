@@ -137,14 +137,16 @@ export const photos = [
 ];
 
 export const socialLinks = {
-  spotify: "https://spotify.com/artist/example",
-  appleMusic: "https://music.apple.com/artist/example",
-  soundcloud: "https://soundcloud.com/example",
-  youtube: "https://youtube.com/example",
-  instagram: "https://instagram.com/example",
-  twitter: "https://twitter.com/example",
-  facebook: "https://facebook.com/example",
-  tiktok: "https://tiktok.com/@example",
+  spotify: "https://open.spotify.com/artist/7DTwqaiSpmjzxnoBrRJeXe",
+  appleMusic: "https://music.apple.com/us/artist/bng-nappsakk/1599225835",
+  soundcloud: "https://soundcloud.com/search?q=bng%20nappsakk",
+  youtube: "https://www.youtube.com/@bngnappsakk",
+  instagram: "https://instagram.com/p/DIjZF9FRTyG",
+  twitter: "https://x.com/BNG_Nappsakk",
+  facebook: "https://facebook.com/napp.sakk.9",
+  tiktok: "https://tiktok.com/@bng_nappsakk",
 };
 
-export const pressKitUrl = "/files/press-kit.pdf";
+// Press Kit URL (Update this with the actual path or URL)
+// Place your PDF in the /public folder and use the relative path like below
+export const pressKitUrl = '/BNG_Nappsakk_Press_Kit.pdf'; // Example path, replace with your actual filename

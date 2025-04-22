@@ -17,7 +17,7 @@ export default function Hero({ title, subtitle, bgImage }) {
 
   return (
     // Ensure the section itself is the relative positioning context
-    <section className="hero" style={{ position: 'relative', height: '80vh', minHeight: '500px', overflow: 'hidden', color: '#fff' /* Add text color for visibility */ }}>
+    <section className="hero" style={{ position: 'relative', height: '110vh', minHeight: '350px', overflow: 'hidden', color: '#fff' /* Add text color for visibility */ }}>
         
         {/* Apply zIndex directly to the Image component */}
         <Image 
@@ -27,7 +27,7 @@ export default function Hero({ title, subtitle, bgImage }) {
           priority
           onError={handleError}
           style={{ 
-            objectFit: 'cover', 
+            objectFit: 'contain', // Changed to 'fill' to stretch the image
             filter: 'brightness(0.6)', 
             // zIndex: -1 // Position the image behind the content
           }}

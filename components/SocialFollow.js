@@ -33,7 +33,7 @@ export default function SocialFollow({ compact = false, vertical = false }) {
     },
     {
       platform: 'Instagram',
-      href: 'https://www.instagram.com/p/DIjZF9FRTyG/',
+      href: 'https://www.instagram.com/bng_nappsakk/',
       icon: <FaInstagram />,
     },
     {

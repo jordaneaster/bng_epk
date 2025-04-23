@@ -1,0 +1,6 @@
+/* Add this with your other CSS rules */
+.form-error {
+  color: var(--color-error, #ff3333);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

@@ -14,6 +14,46 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Sanitize input to prevent XSS
+  const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return '';
+    return input
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .trim();
+  };
+
+  // Validate form inputs
+  const validateForm = () => {
+    const errors = {};
+    
+    // Name validation
+    if (formState.name.length < 2 || formState.name.length > 50) {
+      errors.name = 'Name must be between 2 and 50 characters';
+    }
+    
+    // Email validation with regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(formState.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    // Subject validation
+    if (formState.subject.length < 3 || formState.subject.length > 100) {
+      errors.subject = 'Subject must be between 3 and 100 characters';
+    }
+    
+    // Message validation
+    if (formState.message.length < 10 || formState.message.length > 1000) {
+      errors.message = 'Message must be between 10 and 1000 characters';
+    }
+    
+    return errors;
+  };
 
   const handleChange = (e) => {
     setFormState({
@@ -21,6 +61,14 @@ export default function Contact() {
       [e.target.name]: e.target.value
     });
     setSubmitError(null);
+    
+    // Clear validation error when user types
+    if (validationErrors[e.target.name]) {
+      setValidationErrors({
+        ...validationErrors,
+        [e.target.name]: null
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -29,13 +77,29 @@ export default function Contact() {
     setSubmitError(null);
     setSubmitSuccess(false);
 
+    // Validate form
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Sanitize inputs
+    const sanitizedData = {
+      name: sanitizeInput(formState.name),
+      email: sanitizeInput(formState.email),
+      subject: sanitizeInput(formState.subject),
+      message: sanitizeInput(formState.message)
+    };
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(sanitizedData),
       });
 
       if (!response.ok) {
@@ -56,7 +120,7 @@ export default function Contact() {
       });
 
     } catch (error) {
-      console.error('Submission error:', error);
+      // Removed console.error here
       setSubmitError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -90,8 +154,12 @@ export default function Contact() {
                     name="name"
                     value={formState.name}
                     onChange={handleChange}
+                    maxLength={50}
                     required
                   />
+                  {validationErrors.name && (
+                    <div className="form-error">{validationErrors.name}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -104,6 +172,9 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                   />
+                  {validationErrors.email && (
+                    <div className="form-error">{validationErrors.email}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -114,8 +185,12 @@ export default function Contact() {
                     name="subject"
                     value={formState.subject}
                     onChange={handleChange}
+                    maxLength={100}
                     required
                   />
+                  {validationErrors.subject && (
+                    <div className="form-error">{validationErrors.subject}</div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -125,8 +200,12 @@ export default function Contact() {
                     name="message"
                     value={formState.message}
                     onChange={handleChange}
+                    maxLength={1000}
                     required
                   ></textarea>
+                  {validationErrors.message && (
+                    <div className="form-error">{validationErrors.message}</div>
+                  )}
                 </div>
 
                 <button type="submit" className="btn" disabled={isSubmitting}>

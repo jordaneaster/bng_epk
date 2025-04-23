@@ -400,3 +400,150 @@ img {
 .bio-paragraph strong {
   color: yellow; /* Sets the bold text color to yellow */
 }
+
+/* --- Sticky Social Follow Styles --- */
+.sticky-social {
+  position: fixed !important; 
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  /* Apply black background only when NOT visible */
+  background-color: #000000 !important; 
+  border-top-left-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3) !important;
+  padding: 0.5rem 0 !important;
+  transition: right 0.3s ease, background-color 0.3s ease !important; 
+}
+
+.sticky-social .social-container {
+  width: auto !important;
+  overflow: hidden !important;
+  transition: width 0.3s ease, opacity 0.3s ease !important;
+}
+
+.sticky-social .toggle-button {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffff00 !important; /* Keep this for potential text fallback */
+  transition: color 0.3s ease !important;
+  font-size: 1rem !important;
+}
+
+/* Target the SVG icon within the button */
+.sticky-social .toggle-button svg {
+  fill: #ffff00 !important; /* Set SVG fill to yellow */
+  transition: fill 0.3s ease !important; /* Transition the fill color */
+}
+
+.sticky-social .toggle-button:hover {
+  color: #ffffff !important; /* Change hover color for text fallback */
+}
+
+/* Target the SVG icon within the button on hover */
+.sticky-social .toggle-button:hover svg {
+  fill: #ffffff !important; /* Change SVG fill to white on hover */
+}
+
+.sticky-social .socialLink { /* Assuming .socialLink is the class on the TrackableLink */
+  color: white !important;
+  transition: all 0.3s ease !important;
+  background-color: transparent !important;
+  fill: currentColor !important; 
+  stroke: none !important; 
+  filter: none !important; 
+}
+
+.sticky-social .socialLink:hover {
+  color: #ffff00 !important; 
+}
+
+/* Collapsed state */
+.sticky-social.collapsed .social-container {
+  width: 0 !important; /* Ensure override */
+  opacity: 0 !important; /* Ensure override */
+}
+
+/* Visibility based on scroll - Transparent background, outlined icons */
+.sticky-social.visible {
+  background-color: transparent !important; 
+  box-shadow: none !important;
+}
+
+.sticky-social.visible .socialLink {
+  color: #ffff00 !important; /* Yellow fill */
+  filter: drop-shadow(0 0 1px black) !important; /* Black outline effect */
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.sticky-social.visible .socialLink:hover {
+  color: #ffffff !important; /* White fill on hover */
+  filter: drop-shadow(0 0 2px black) !important; /* Enhanced outline on hover */
+}
+
+.sticky-social.hidden {
+  right: 0 !important; /* Keep it aligned to the right */
+  background-color: #000000 !important; /* Keep black background when hidden */
+}
+
+/* Mobile styles for Sticky Social */
+@media (max-width: 768px) {
+  .sticky-social {
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important; /* Ensure it spans width */
+    transform: none !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+    flex-direction: column !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3) !important;
+    transition: bottom 0.3s ease !important;
+    /* Reset background for mobile initial state if needed */
+    background-color: #000000 !important; 
+  }
+
+  .sticky-social .toggle-button {
+    width: 100% !important;
+    transform: rotate(90deg) !important;
+  }
+
+  .sticky-social.collapsed .social-container {
+    height: 0 !important;
+    width: auto !important; /* Reset width for vertical collapse */
+  }
+
+  /* Adjust visible/hidden for bottom positioning */
+   .sticky-social.visible {
+    bottom: 0 !important;
+    background-color: transparent !important; /* Keep transparent background */
+  }
+
+  .sticky-social.hidden {
+    bottom: 0 !important; /* Ensure it stays visible at the bottom */
+    right: 0 !important; /* Reset right positioning */
+    background-color: #000000 !important; /* Keep black background when hidden */
+  }
+  
+  /* Ensure mobile visible icons are styled correctly */
+  .sticky-social.visible .socialLink {
+    color: #ffff00 !important; 
+    filter: drop-shadow(0 0 1px black) !important; 
+  }
+
+  .sticky-social.visible .socialLink:hover {
+    color: #ffffff !important; 
+    filter: drop-shadow(0 0 2px black) !important; 
+  }
+}

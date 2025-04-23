@@ -33,13 +33,6 @@ export default function Navbar() {
   return (
     // Add conditional class based on mobile menu state
     <nav className={`navbar ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
-      {/*
-        CSS Adjustments Needed for Mobile View:
-        - Target '.nav-logo' in a mobile media query to reduce its font size, width, or padding.
-        - Target '.nav-links li' or '.nav-links a' in a mobile media query to reduce padding, margin, or font size.
-        - Consider allowing '.nav-links' to wrap onto multiple lines if needed (`flex-wrap: wrap;`).
-        Ensure CSS rules allow all content to be fully visible on small screens.
-      */}
       <div className="container">
         <Link href="/" className="nav-logo" onClick={handleLinkClick}>
           BNG NappSakk
@@ -50,7 +43,6 @@ export default function Navbar() {
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
 
-        {/* Add onClick handler to links */}
         <ul className="nav-links">
           {navLinks.map((link) => (
             <li key={link.href}>

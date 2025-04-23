@@ -51,8 +51,6 @@ export default async function Videos() {
 
   return (
       <div className="container">
-        <h1 className="text-center mb-4">Videos</h1>
-
         <div className="mb-4">
           {videoData.map((video, index) => {
             const platform = video.medium ? video.medium.toLowerCase() : 'youtube'; // Default to youtube if medium is null
@@ -64,17 +62,16 @@ export default async function Videos() {
               return null;
             }
 
-            // Optional: Use Card component for layout
+            // Use Card component for consistent styling
             return (
               <div key={video.id} className="fade-in mb-4" style={{ animationDelay: `${index * 0.1}s` }}>
-                 {/* You can add a title to the Card if your table has one */}
-                 {/* <Card title={video.title || 'Video'}> */}
+                 <Card title={video.title || ''}> {/* Use video.title if it exists */}
                    <VideoEmbed
                      platform={platform}
                      videoId={preparedVideoId}
                      title={video.title || `${platform} Video`} // Use a title field if available
                    />
-                 {/* </Card> */}
+                 </Card>
               </div>
             );
           })}

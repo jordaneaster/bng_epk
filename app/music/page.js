@@ -35,23 +35,20 @@ export default async function Music() {
   if (error) {
     console.error('Error fetching music:', error);
     return (
-      <Layout>
+      
         <div className="container">
           <h1 className="text-center mb-4">Music</h1>
           <p className="text-center text-danger">Could not load music data.</p>
         </div>
-      </Layout>
     );
   }
 
   if (!musicTracks || musicTracks.length === 0) {
     return (
-      <Layout>
         <div className="container">
           <h1 className="text-center mb-4">Music</h1>
           <p className="text-center">No music found.</p>
         </div>
-      </Layout>
     );
   }
 

@@ -53,18 +53,15 @@ export async function POST(request) {
 
     if (insertError) {
       // Throw an error if Supabase returned an error
-      console.error('Supabase Insert Error:', insertError);
       throw new Error(insertError.message || 'Failed to save submission to the database.');
     }
 
-    console.log('Supabase insert successful:', insertData);
 
     // Return success response
     // Adjust the response data as needed, maybe return the ID if available in insertData
     return NextResponse.json({ message: 'Submission received!', data: insertData?.[0] }, { status: 201 });
 
   } catch (error) {
-    console.error('API Error:', error);
     // Return a more specific error if it came from the database function
     const errorMessage = error.message.includes('database') || error.message.includes('relation') // Check for common DB error messages
       ? 'Could not save submission.'

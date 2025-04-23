@@ -20,8 +20,6 @@ function getAppleMusicEmbedId(url) {
 // Make the component async
 export default async function Music() {
   // Log environment variables on the server-side
-  console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-  console.log('Supabase Anon Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Loaded' : 'Missing');
 
   const { data: musicTracks, error } = await supabase
     .from('bng_music')
@@ -29,8 +27,6 @@ export default async function Music() {
     .order('created_at', { ascending: false });
 
   // Log the result from Supabase
-  console.log('Fetched Music Tracks:', musicTracks);
-  console.log('Supabase Error:', error);
 
   if (error) {
     console.error('Error fetching music:', error);

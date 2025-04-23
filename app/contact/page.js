@@ -47,7 +47,6 @@ export default function Contact() {
         throw new Error(errorMsg);
       }
 
-      console.log('Form submitted successfully to API');
       setSubmitSuccess(true);
       setFormState({
         name: '',

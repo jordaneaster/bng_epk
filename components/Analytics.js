@@ -2,13 +2,14 @@
 
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { pageview, GA_TRACKING_ID } from '@/lib/gtag';
 
-export default function Analytics() {
+// Create a separate component for the part that uses useSearchParams
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
+  
   useEffect(() => {
     if (!GA_TRACKING_ID) return;
     
@@ -19,7 +20,11 @@ export default function Analytics() {
       pageview(url);
     }
   }, [pathname, searchParams]);
+  
+  return null;
+}
 
+export default function Analytics() {
   if (!GA_TRACKING_ID) {
     console.warn("Google Analytics tracking disabled: NEXT_PUBLIC_GA_ID not set.");
     return null;
@@ -55,6 +60,9 @@ export default function Analytics() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </>
   );
 }

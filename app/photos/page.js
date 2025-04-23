@@ -48,8 +48,10 @@ export default async function Photos() {
   const photos = await fetchImages();
 
   return (
-      <div className="container">
-        <div className="mb-4">
+      // Add padding to the main container and a title
+      <div className="container mx-auto px-4 py-8">
+        {/* Removed mb-4 from here as padding is handled by the container */}
+        <div>
           <ImageGrid images={photos} />
         </div>
       </div>

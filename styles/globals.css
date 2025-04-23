@@ -89,9 +89,6 @@ img {
 .p-3 { padding: calc(var(--spacing-unit) * 3); }
 .p-4 { padding: calc(var(--spacing-unit) * 4); }
 
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-
 .btn {
   display: inline-block;
   background-color: var(--color-primary);
@@ -280,20 +277,15 @@ img {
   background-color: var(--color-card-bg);
   border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex; /* Use flexbox for content alignment */
   flex-direction: column; /* Stack content vertically */
   max-width: 800px; /* Adjust this value as needed */
   max-height:fit-content;
-  /* If you want the card centered within its grid cell, uncomment below */
-  /* margin-left: auto; */
-  /* margin-right: auto; */
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
 }
 
 .card-image img {
@@ -493,6 +485,13 @@ img {
 .sticky-social.hidden {
   right: 0 !important; /* Keep it aligned to the right */
   background-color: #000000 !important; /* Keep black background when hidden */
+}
+
+/* Add this with your other CSS rules */
+.form-error {
+  color: var(--color-error, #ff3333);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 
 /* Mobile styles for Sticky Social */

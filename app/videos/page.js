@@ -1,4 +1,3 @@
-import Layout from '../../components/Layout';
 import VideoEmbed from '../../components/VideoEmbed';
 import Card from '../../components/Card'; // Optional: Use Card for consistent styling
 import { supabase } from '../../lib/supabaseClient';
@@ -34,28 +33,23 @@ export default async function Videos() {
   if (error) {
     console.error('Error fetching videos:', error);
     return (
-      <Layout>
         <div className="container">
           <h1 className="text-center mb-4">Videos</h1>
           <p className="text-center text-danger">Could not load video data.</p>
         </div>
-      </Layout>
     );
   }
 
   if (!videoData || videoData.length === 0) {
     return (
-      <Layout>
         <div className="container">
           <h1 className="text-center mb-4">Videos</h1>
           <p className="text-center">No videos found.</p>
         </div>
-      </Layout>
     );
   }
 
   return (
-    <Layout>
       <div className="container">
         <h1 className="text-center mb-4">Videos</h1>
 
@@ -86,6 +80,5 @@ export default async function Videos() {
           })}
         </div>
       </div>
-    </Layout>
   );
 }

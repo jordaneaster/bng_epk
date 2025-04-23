@@ -1,4 +1,3 @@
-import Layout from '../../components/Layout';
 import MusicPlayerEmbed from '../../components/MusicPlayerEmbed';
 import Card from '../../components/Card';
 import { supabase } from '../../lib/supabaseClient';
@@ -57,7 +56,6 @@ export default async function Music() {
   }
 
   return (
-    <Layout>
       <div className="container">
         <h1 className="text-center mb-4">Music</h1>
 
@@ -70,7 +68,6 @@ export default async function Music() {
                 <Card
                   title={track.title}
                   spotify_link={track.spotify_link}
-                  // imageUrl={track.image_url}
                 >
                   {appleEmbedId && (
                     <MusicPlayerEmbed
@@ -92,6 +89,5 @@ export default async function Music() {
           })}
         </div>
       </div>
-    </Layout>
   );
 }

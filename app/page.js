@@ -1,11 +1,10 @@
-import Layout from '../components/Layout';
 import Hero from '../components/Hero';
 import Link from 'next/link';
 import { artistInfo } from '../data/mockData';
 
 export default function Home() {
   return (
-    <Layout>
+    <>
       <Hero 
         title={artistInfo.name}
         subtitle={artistInfo.tagline}
@@ -29,6 +28,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

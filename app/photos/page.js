@@ -1,4 +1,3 @@
-import Layout from '../../components/Layout';
 import ImageGrid from '../../components/ImageGrid';
 import { createClient } from '@supabase/supabase-js'; // Assuming you have supabase client configured
 
@@ -51,7 +50,6 @@ export default async function Photos() { // Make the component async
   const photos = await fetchImages(); // Fetch images
 
   return (
-    <Layout>
       <div className="container">
         <h1 className="text-center mb-4">Photos</h1>
         
@@ -59,6 +57,5 @@ export default async function Photos() { // Make the component async
           <ImageGrid images={photos} />
         </div>
       </div>
-    </Layout>
   );
 }

@@ -1,10 +1,9 @@
-import Layout from '../../components/Layout';
 import Card from '../../components/Card';
 import { tourDates } from '../../data/mockData';
 
 export default function Tour() {
   return (
-    <Layout>
+    // <Layout>
       <div className="container">
         <h1 className="text-center mb-4">Tour Dates</h1>
         
@@ -25,6 +24,5 @@ export default function Tour() {
         */}
         <p className="text-center text-xl mt-8">Tour dates coming soon!</p>
       </div>
-    </Layout>
   );
 }

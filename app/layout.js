@@ -1,9 +1,9 @@
 import '../styles/globals.css'; // Your global styles
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import Analytics from './Analytics';
-import CookieConsent from './CookieConsent';
-import StickySocialFollow from './StickySocialFollow';
+import Analytics from '@/components/Analytics';
+import CookieConsent from '@/components/CookieConsent';
+import StickySocialFollow from '@/components/StickySocialFollow';
 export const metadata = {
   title: 'BNG NappSakk - EPK',
   description: 'Electronic Press Kit for BNG NappSakk',

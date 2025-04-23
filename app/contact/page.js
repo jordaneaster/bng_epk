@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Layout from '../../components/Layout';
 import { socialLinks } from '../../data/mockData';
 import Link from 'next/link';
 
@@ -66,7 +65,6 @@ export default function Contact() {
   };
 
   return (
-    <Layout>
       <div className="container">
         <div className="fade-in">
           <h1 className="text-center mb-4">Contact</h1>
@@ -150,6 +148,5 @@ export default function Contact() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

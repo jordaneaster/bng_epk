@@ -1,4 +1,3 @@
-import Layout from '../../components/Layout';
 import Card from '../../components/Card';
 import PasswordProtection from '../../components/PasswordProtection';
 import Image from 'next/image';
@@ -51,10 +50,8 @@ function PressContent() {
 
 export default function Press() {
   return (
-    <Layout>
       <PasswordProtection>
         <PressContent />
       </PasswordProtection>
-    </Layout>
   );
 }

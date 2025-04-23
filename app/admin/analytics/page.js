@@ -1,5 +1,4 @@
 'use client';
-import Layout from '../../../components/Layout';
 import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -81,7 +80,6 @@ export default function AnalyticsDashboard() {
   }, [timeRange]);
 
   return (
-    <Layout>
       <div className={styles.container}>
         <h1 className={styles.title}>Analytics Dashboard</h1>
 
@@ -158,8 +156,5 @@ export default function AnalyticsDashboard() {
           <p><strong>Note:</strong> This dashboard currently shows mock data. In production, it would fetch real-time data from the Google Analytics Reporting API.</p>
         </div>
       </div>
-
-    </Layout>
-
   );
 }

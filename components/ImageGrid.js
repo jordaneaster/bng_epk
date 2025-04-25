@@ -32,7 +32,7 @@ export default function ImageGrid({ images }) {
               alt={image.alt || `Gallery image ${index + 1}`}
               width={400}
               height={300}
-              style={{ objectFit: 'contain', width: '100%', height: 'auto', aspectRatio: '4/3' }}
+              style={{ objectFit: '', width: '100%', height: 'auto', aspectRatio: '4/3' }}
               // Rely on parent div's overflow-hidden for rounding
               className="block" // Removed rounded-xl
             />

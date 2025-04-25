@@ -4,3 +4,110 @@
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
+
+/* Add these responsive utility classes to your existing CSS */
+
+/* Mobile-specific styles */
+@media (max-width: 767px) {
+  .btn-mobile-full {
+    width: 100%;
+    display: block;
+    text-align: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  h1, h2 {
+    font-size: calc(1.2rem + 3vw);
+  }
+  
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  /* Improved tap targets for mobile */
+  .btn, button, a {
+    min-height: 44px;
+    padding: 12px;
+  }
+  
+  /* Adjust iframe containers for better mobile experience */
+  .video-wrapper, .music-player-embed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
+}
+
+/* Improve scrolling */
+html, body {
+  scroll-behavior: smooth;
+}
+
+/* Dark mode optimization for better contrast */
+@media (prefers-color-scheme: dark) {
+  .btn {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+}
+
+/* Add these styles for iframe transparency */
+iframe {
+  background: transparent !important;
+}
+
+/* Force transparency for Apple Music embeds specifically */
+iframe[src*="embed.music.apple.com"] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+.music-player-embed {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+.music-player-embed > div {
+  background: transparent !important;
+}
+
+/* Top sticky social follow styles */
+.sticky-social {
+  transition: top 0.3s ease;
+}
+
+.sticky-social.hidden {
+  top: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sticky-social.visible {
+  opacity: 1;
+}
+
+.sticky-social a {
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  margin: 0 10px;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  font-size: 1.5rem;
+}
+
+.sticky-social a:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+  .sticky-social {
+    display: none !important;
+  }
+}

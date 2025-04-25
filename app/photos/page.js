@@ -1,6 +1,7 @@
 import ImageGrid from '../../components/ImageGrid';
 import { createClient } from '@supabase/supabase-js';
 import { getPublicFileUrl } from '../../lib/supabaseUtils';
+import styles from './photos.module.css';
 
 // Initialize Supabase client (replace with your actual URL and anon key, preferably from env vars)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -37,7 +38,9 @@ async function fetchImages() {
 
     return {
       url: imageUrl,
-      alt: file.name // Use filename as alt text
+      alt: file.name, // Use filename as alt text
+      objectFit: 'contain', // Preserves aspect ratio while filling container
+      className: 'rounded shadow-md' // Optional styling improvements
     };
   }).filter(image => image.url !== null);
 
@@ -48,12 +51,11 @@ export default async function Photos() {
   const photos = await fetchImages();
 
   return (
-      // Add padding to the main container and a title
-      <div className="container mx-auto px-4 py-8">
-        {/* Removed mb-4 from here as padding is handled by the container */}
-        <div>
-          <ImageGrid images={photos} />
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">Photo Gallery</h1>
+      <div className={`max-w-screen-xl mx-auto ${styles.galleryContainer}`}>
+        <ImageGrid images={photos} />
       </div>
+    </div>
   );
 }

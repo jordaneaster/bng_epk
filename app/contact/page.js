@@ -15,6 +15,8 @@ export default function Contact() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [emailStatus, setEmailStatus] = useState(null);
+  const [mailingListStatus, setMailingListStatus] = useState(null);
 
   // Sanitize input to prevent XSS
   const sanitizeInput = (input) => {
@@ -76,6 +78,8 @@ export default function Contact() {
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
+    setEmailStatus(null);
+    setMailingListStatus(null);
 
     // Validate form
     const errors = validateForm();
@@ -102,16 +106,17 @@ export default function Contact() {
         body: JSON.stringify(sanitizedData),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
         let errorMsg = `Submission failed: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (jsonError) {}
+        errorMsg = responseData.message || errorMsg;
         throw new Error(errorMsg);
       }
 
       setSubmitSuccess(true);
+      setEmailStatus(responseData.emailStatus || 'Unknown');
+      setMailingListStatus(responseData.mailingListStatus);
       setFormState({
         name: '',
         email: '',
@@ -120,7 +125,6 @@ export default function Contact() {
       });
 
     } catch (error) {
-      // Removed console.error here
       setSubmitError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -137,6 +141,16 @@ export default function Contact() {
               <div className="text-center p-4" style={{ backgroundColor: 'var(--color-card-bg)', borderRadius: 'var(--border-radius)' }}>
                 <h2 className="mb-2">Thank You!</h2>
                 <p>Your message has been received. We&apos;ll get back to you soon.</p>
+                {emailStatus && (
+                  <p className="mt-2" style={{ fontSize: '0.9em', opacity: 0.8 }}>
+                    Email notification status: {emailStatus}
+                  </p>
+                )}
+                {mailingListStatus && (
+                  <p className="mt-1" style={{ fontSize: '0.9em', opacity: 0.8 }}>
+                    {mailingListStatus}
+                  </p>
+                )}
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="contact-form">

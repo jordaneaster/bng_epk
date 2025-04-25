@@ -1,0 +1,21 @@
+.galleryContainer :global(.image-item) {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.galleryContainer :global(.image-item img) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  max-height: 300px;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .galleryContainer :global(.image-item img) {
+    max-height: 200px;
+  }
+}

@@ -48,12 +48,22 @@ export default async function Music() {
     );
   }
 
+  // Sort tracks to show featured ones at the top
+  const sortedTracks = [...musicTracks].sort((a, b) => {
+    // First sort by featured status (true comes first)
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    
+    // Then sort by creation date (most recent first)
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
   return (
       <div className="container">
         <h1 className="text-center mb-4">Music</h1>
 
         <div className="mb-4">
-          {musicTracks.map((track, index) => {
+          {sortedTracks.map((track, index) => {
             const appleEmbedId = getAppleMusicEmbedId(track.apple_music_link);
 
             return (

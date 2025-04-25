@@ -30,12 +30,13 @@ function prepareVideoId(id, medium) {
 }
 
 export default async function Home() {
-  // Fetch music data
+  // Fetch music data - only featured tracks
   const { data: musicTracks, error: musicError } = await supabase
     .from('bng_music')
     .select('*')
+    .eq('featured', true)
     .order('created_at', { ascending: false })
-    .limit(1); // Just get the latest track
+    .limit(1); // Just get the latest featured track
 
   // Fetch video data
   const { data: videoData, error: videoError } = await supabase

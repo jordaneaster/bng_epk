@@ -137,22 +137,19 @@ export default function MusicPlayerEmbed({ type, embedId, title, isMobile = fals
 
       case 'apple':
         return (
-          <div style={{ background: 'transparent' }}>
+          <div className="music-player-container">
             <iframe 
-              allow="autoplay *; encrypted-media *; fullscreen *" 
-              height={isMobile ? "150" : "175"} 
-              style={{ 
-                width: '100%', 
-                maxWidth: isMobile ? '660px' : '760px',
-                overflow: 'hidden', 
-                background: 'transparent',
-                border: 'none',
-                backdropFilter: 'none'
-              }} 
-              sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" 
-              src={`https://embed.music.apple.com/us/album/${embedId}?app=music&theme=dark&background=transparent`}
               title={`Apple Music: ${title}`}
-              allowtransparency="true"
+              src={`https://embed.music.apple.com/us/album/${embedId}?app=music`}
+              width="100%" 
+              height="550" // Increased height from original value
+              frameBorder="0" 
+              allow="autoplay *; encrypted-media *;" 
+              style={{
+                maxWidth: '100%',
+                overflow: 'hidden',
+                background: 'transparent',
+              }}
             ></iframe>
           </div>
         );

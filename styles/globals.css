@@ -497,52 +497,6 @@ img {
 /* Mobile styles for Sticky Social */
 @media (max-width: 768px) {
   .sticky-social {
-    bottom: 0 !important;
-    top: auto !important;
-    left: 0 !important;
-    right: 0 !important; /* Ensure it spans width */
-    transform: none !important;
-    width: 100% !important;
-    border-radius: 0 !important;
-    border-top-left-radius: 8px !important;
-    border-top-right-radius: 8px !important;
-    flex-direction: column !important;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3) !important;
-    transition: bottom 0.3s ease !important;
-    /* Reset background for mobile initial state if needed */
-    background-color: #000000 !important; 
-  }
-
-  .sticky-social .toggle-button {
-    width: 100% !important;
-    transform: rotate(90deg) !important;
-  }
-
-  .sticky-social.collapsed .social-container {
-    height: 0 !important;
-    width: auto !important; /* Reset width for vertical collapse */
-  }
-
-  /* Adjust visible/hidden for bottom positioning */
-   .sticky-social.visible {
-    bottom: 0 !important;
-    background-color: transparent !important; /* Keep transparent background */
-  }
-
-  .sticky-social.hidden {
-    bottom: 0 !important; /* Ensure it stays visible at the bottom */
-    right: 0 !important; /* Reset right positioning */
-    background-color: #000000 !important; /* Keep black background when hidden */
-  }
-  
-  /* Ensure mobile visible icons are styled correctly */
-  .sticky-social.visible .socialLink {
-    color: #ffff00 !important; 
-    filter: drop-shadow(0 0 1px black) !important; 
-  }
-
-  .sticky-social.visible .socialLink:hover {
-    color: #ffffff !important; 
-    filter: drop-shadow(0 0 2px black) !important; 
+    display: none !important; /* Hide completely on mobile devices */
   }
 }

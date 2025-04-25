@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import QRCodeGenerator from './QRCodeGenerator';
 import SocialFollow from './SocialFollow';
+import MailingListSubscribe from './MailingListSubscribe';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,15 +10,23 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container">
-        <div className="social-links">
-          <SocialFollow />
+        <div className="row">
+          <div className="col-md-6">
+            <div className="social-links">
+              <SocialFollow />
+            </div>
+            
+            <div className="mt-3">
+              <QRCodeGenerator url={epkUrl} />
+            </div>
+          </div>
+          
+          <div className="col-md-6">
+            <MailingListSubscribe />
+          </div>
         </div>
         
-        <div className="mt-3">
-          <QRCodeGenerator url={epkUrl} />
-        </div>
-        
-        <p className="mt-3">© {currentYear} BNG NappSakk. All Rights Reserved.</p>
+        <p className="mt-4 text-center">© {currentYear} BNG NappSakk. All Rights Reserved.</p>
       </div>
     </footer>
   );

@@ -380,7 +380,7 @@ img {
 /* Bio Paragraph Styles */
 .bio-paragraph::first-letter {
   /* Add any other drop cap styles here (e.g., font-size, float, margin, line-height) */
-  color: yellow; /* Sets the drop cap color to yellow */
+  color: #f0b429; /* Sets the drop cap color to yellow */
   /* Example other styles you might need: */
   /* float: left; */
   /* font-size: 4em; */
@@ -390,7 +390,7 @@ img {
 }
 
 .bio-paragraph strong {
-  color: yellow; /* Sets the bold text color to yellow */
+  color: #f0b429; /* Sets the bold text color to yellow */
 }
 
 /* --- Sticky Social Follow Styles --- */

@@ -5,7 +5,9 @@ import MailingListSubscribe from './MailingListSubscribe';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const epkUrl = 'https://bng-epk.vercel.app'; // Replace with your actual EPK URL
+  const epkUrl = process.env.NEXT_PUBLIC_SITE_URL ? 
+    `${process.env.NEXT_PUBLIC_SITE_URL}/epk` : 
+    'https://bng-epk.vercel.app/epk'; // Update URL to point specifically to EPK page
 
   return (
     <footer className="footer">
@@ -18,6 +20,7 @@ export default function Footer() {
             
             <div className="mt-3">
               <QRCodeGenerator url={epkUrl} />
+              <p className="text-center mt-2 small">Scan for EPK</p> {/* Add label for QR code */}
             </div>
           </div>
           

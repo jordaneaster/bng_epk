@@ -237,6 +237,12 @@ export default function Contact() {
                 <Link href={socialLinks.tiktok}>TikTok</Link>
               </div>
             </div>
+
+            <div className="mt-4 p-3 text-center" style={{ backgroundColor: 'var(--color-card-bg)', borderRadius: 'var(--border-radius)' }}>
+              <h3 className="mb-2">Media & Press</h3>
+              <p>Looking for press materials? Check out our Electronic Press Kit.</p>
+              <Link href="/epk" className="btn mt-2">View EPK</Link>
+            </div>
           </div>
         </div>
       </div>

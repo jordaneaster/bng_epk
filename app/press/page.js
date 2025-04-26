@@ -10,8 +10,11 @@ function PressContent() {
       <h1 className="text-center mb-4">Press & Media</h1>
       
       <div className="text-center mb-4">
-        <Link href={pressKitUrl} className="btn" target="_blank" rel="noopener noreferrer">
+        <Link href={pressKitUrl} className="btn me-2" target="_blank" rel="noopener noreferrer">
           Download Press Kit (PDF)
+        </Link>
+        <Link href="/epk" className="btn ms-2">
+          Electronic Press Kit (EPK)
         </Link>
       </div>
       

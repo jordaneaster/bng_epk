@@ -20,7 +20,7 @@ export default function EPKPage() {
                 backgroundColor: 'var(--color-card-bg)', 
                 borderRadius: 'var(--border-radius)'
               }}>
-                <h3 className="mb-3">What's included in the EPK?</h3>
+                <h3 className="mb-3">What&apos;s included in the EPK?</h3>
                 <ul>
                   <li>Artist biography and background</li>
                   <li>Music links and discography</li>

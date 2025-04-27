@@ -1,6 +1,16 @@
 import VideoEmbed from '../../components/VideoEmbed';
 import Card from '../../components/Card'; // Optional: Use Card for consistent styling
 import { supabase } from '../../lib/supabaseClient';
+import Script from 'next/script';
+import { createBaseMetadata } from '../../lib/seo';
+
+// Export metadata for this page
+export const metadata = createBaseMetadata({
+  title: 'Videos - BNG Music',
+  description: 'Watch the latest music videos, live performances, and more from BNG Music.',
+  path: '/videos',
+  ogImage: '/images/videos-og.jpg',
+});
 
 // Helper function to prepare video ID (handles Facebook URL encoding)
 function prepareVideoId(id, medium) {
@@ -49,7 +59,27 @@ export default async function Videos() {
     );
   }
 
+  // Create VideoObject structured data for the first video
+  const firstVideo = videoData && videoData.length > 0 ? videoData[0] : null;
+  const structuredData = firstVideo ? {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: firstVideo.title || 'BNG Music Video',
+    description: 'Music video by BNG Music',
+    thumbnailUrl: firstVideo.thumbnail_url || 'https://bngmusicentertainment.com/images/bape-cover.jpg',
+    uploadDate: firstVideo.created_at || new Date().toISOString(),
+    contentUrl: firstVideo.video_url || '',
+  } : null;
+
   return (
+    <>
+      {structuredData && (
+        <Script
+          id="schema-video"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      )}
       <div className="container">
         <div className="mb-4">
           {videoData.map((video, index) => {
@@ -77,5 +107,6 @@ export default async function Videos() {
           })}
         </div>
       </div>
+    </>
   );
 }

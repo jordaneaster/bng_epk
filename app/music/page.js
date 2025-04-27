@@ -1,6 +1,16 @@
 import MusicPlayerEmbed from '../../components/MusicPlayerEmbed';
 import Card from '../../components/Card';
 import { supabase } from '../../lib/supabaseClient';
+import Script from 'next/script';
+import { createBaseMetadata } from '../../lib/seo';
+
+// Export metadata for this page
+export const metadata = createBaseMetadata({
+  title: 'Music - BNG Music Entertainment.',
+  description: 'Listen to the latest releases, albums, and singles from BNG Music Entertainment.',
+  path: '/music',
+  ogImage: '/images/bape-cover.jpg',
+});
 
 // Helper function to extract Apple Music embed ID
 function getAppleMusicEmbedId(url) {
@@ -58,7 +68,27 @@ export default async function Music() {
     return new Date(b.created_at) - new Date(a.created_at);
   });
 
+  // Create MusicPlaylist structured data
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicPlaylist',
+    name: 'BNG Music - Discography',
+    numTracks: sortedTracks.length,
+    track: sortedTracks.map((track, index) => ({
+      '@type': 'MusicRecording',
+      name: track.title,
+      position: index + 1,
+      url: track.spotify_link || '',
+    })),
+  };
+
   return (
+    <>
+      <Script
+        id="schema-music"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="container">
         <h1 className="text-center mb-4">Music</h1>
 
@@ -92,5 +122,6 @@ export default async function Music() {
           })}
         </div>
       </div>
+    </>
   );
 }

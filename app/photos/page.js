@@ -2,6 +2,15 @@ import ImageGrid from '../../components/ImageGrid';
 import { createClient } from '@supabase/supabase-js';
 import { getPublicFileUrl } from '../../lib/supabaseUtils';
 import styles from './photos.module.css';
+import { createBaseMetadata } from '../../lib/seo';
+
+// Export metadata for this page
+export const metadata = createBaseMetadata({
+  title: 'Photo Gallery - BNG Music Entertainment',
+  description: 'Browse official photos, press images, and more from BNG Music Entertainment.',
+  path: '/photos',
+  ogImage: '/images/hero-bg.jpg',
+});
 
 // Initialize Supabase client (replace with your actual URL and anon key, preferably from env vars)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

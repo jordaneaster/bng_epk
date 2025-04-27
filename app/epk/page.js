@@ -1,6 +1,15 @@
 import EPKDownloader from '../../components/EPKDownloader';
 import QRCodeGenerator from '../../components/QRCodeGenerator';
 import Link from 'next/link';
+import { createBaseMetadata } from '../../lib/seo';
+
+// Export metadata for this page
+export const metadata = createBaseMetadata({
+  title: 'Electronic Press Kit - BNG Music Entertainment',
+  description: 'Access the official Electronic Press Kit (EPK) for BNG Music Entertainment, including biography, photos, music, and more.',
+  path: '/epk',
+  ogImage: '/images/hero-bg.jpg',
+});
 
 export default function EPKPage() {
   // Get the current site URL for the QR code

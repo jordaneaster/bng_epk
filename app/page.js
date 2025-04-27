@@ -2,6 +2,8 @@ import Hero from '../components/Hero';
 import Link from 'next/link';
 import { artistInfo } from '../data/mockData';
 import { supabase } from '../lib/supabaseClient';
+import Script from 'next/script';
+import { createBaseMetadata, createMusicGroupSchema } from '../lib/seo';
 
 // Helper function to extract Apple Music embed ID - same as in music/page.js
 function getAppleMusicEmbedId(url) {
@@ -28,6 +30,14 @@ function prepareVideoId(id, medium) {
   }
   return id;
 }
+
+// Export metadata for this page
+export const metadata = createBaseMetadata({
+  title: `${artistInfo.name} - Official Website`,
+  description: artistInfo.shortBio || artistInfo.tagline,
+  path: '/',
+  ogImage: '/images/hero-bg.jpg',
+});
 
 export default async function Home() {
   // Fetch music data - only featured tracks
@@ -61,8 +71,22 @@ export default async function Home() {
       title: video.title || 'Featured Video'
     })) : [];
 
+  const structuredData = createMusicGroupSchema({
+    description: artistInfo.shortBio || artistInfo.tagline,
+    sameAs: [
+      'https://open.spotify.com/artist/yourspotifyid',
+      'https://music.apple.com/artist/yourappleid',
+      'https://www.youtube.com/channel/yourchannelid',
+    ],
+  });
+
   return (
     <>
+      <Script
+        id="schema-musicgroup"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="hero-container" style={{ 
         width: '100%', 
         overflow: 'hidden',

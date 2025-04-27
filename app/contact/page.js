@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { socialLinks } from '../../data/mockData';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 export default function Contact() {
   const [formState, setFormState] = useState({

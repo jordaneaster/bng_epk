@@ -3,6 +3,20 @@ import PasswordProtection from '../../components/PasswordProtection';
 import Image from 'next/image';
 import Link from 'next/link';
 import { pressItems, pressKitUrl } from '../../data/mockData';
+import { createBaseMetadata } from '../../lib/seo';
+
+// Export metadata for this page - noindex since it's password protected
+export const metadata = {
+  ...createBaseMetadata({
+    title: 'Press & Media - BNG Music',
+    description: 'Access press materials, media coverage, and more for BNG Music.',
+    path: '/press',
+  }),
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 function PressContent() {
   return (

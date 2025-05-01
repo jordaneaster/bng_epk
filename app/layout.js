@@ -4,9 +4,40 @@ import Footer from '@/components/Footer';
 import Analytics from '@/components/Analytics';
 import CookieConsent from '@/components/CookieConsent';
 import StickySocialFollow from '@/components/StickySocialFollow';
+
 export const metadata = {
   title: 'BNG NappSakk - EPK',
-  description: 'Electronic Press Kit for BNG NappSakk',
+  description: 'Hip-Hop Visionary | Performer | Fashion Icon',
+  metadataBase: new URL('https://bngmusicentertainment.com'),
+  viewport: 'width=device-width, initial-scale=1',
+  robots: 'index, follow',
+  charset: 'utf-8',
+  openGraph: {
+    title: 'BNG NappSakk - Official Website',
+    description: 'Hip-Hop Visionary | Performer | Fashion Icon',
+    url: 'https://bngmusicentertainment.com',
+    siteName: 'BNG Music',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: 'https://bngmusicentertainment.com/images/hero-bg.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'BNG NappSakk - Official Website',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    creator: '@BNG_Nappsakk',
+    title: 'BNG NappSakk - Official Website',
+    description: 'Hip-Hop Visionary | Performer | Fashion Icon',
+    images: ['https://bngmusicentertainment.com/images/hero-bg.jpg'],
+  },
+  alternates: {
+    canonical: 'https://bngmusicentertainment.com',
+  },
 };
 
 export default function RootLayout({ children }) {

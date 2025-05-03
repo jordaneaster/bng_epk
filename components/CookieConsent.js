@@ -77,7 +77,7 @@ export default function CookieConsent() {
         gap: '1rem'
       }}>
         <p style={{ margin: 0, textAlign: 'center' }}>
-        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content. By clicking "Accept All," you consent to the use of all cookies.
+        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content. By clicking &quot;Accept All,&quot; you consent to the use of all cookies.
         </p>
         <div className="cookie-buttons" style={{
           display: 'flex',

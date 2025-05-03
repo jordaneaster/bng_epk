@@ -96,6 +96,13 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
   // Handle click outside of overlay to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Check if the click is from the cookie consent banner
+      const consentBanner = document.querySelector('.cookie-consent-banner');
+      if (consentBanner && (consentBanner === event.target || consentBanner.contains(event.target))) {
+        // If the click originated from the consent banner, don't close the overlay
+        return;
+      }
+
       if (overlayRef.current && !overlayRef.current.contains(event.target)) {
         setShowOverlay(false);
       }
@@ -103,10 +110,12 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
 
     if (showOverlay) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside, { passive: true });
     }
     
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [showOverlay]);
 

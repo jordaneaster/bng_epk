@@ -43,21 +43,32 @@ export default function CookieConsent() {
     }
   };
   
+  // Prevent click events from bubbling up to the document
+  const handleConsentClick = (e) => {
+    e.stopPropagation();
+  };
+  
   if (!showConsent) return null;
   
   return (
-    <div className="cookie-consent-banner" style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: 'rgba(0,0,0,0.85)',
-      color: 'white',
-      padding: '1rem',
-      zIndex: 9999,
-      display: 'flex',
-      justifyContent: 'center'
-    }}>
+    <div 
+      className="cookie-consent-banner" 
+      onClick={handleConsentClick}
+      onMouseDown={handleConsentClick}
+      onTouchStart={handleConsentClick}
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0,0,0,0.85)',
+        color: 'white',
+        padding: '1rem',
+        zIndex: 9999,
+        display: 'flex',
+        justifyContent: 'center'
+      }}
+    >
       <div className="cookie-content" style={{
         maxWidth: '1200px',
         display: 'flex',
@@ -66,7 +77,7 @@ export default function CookieConsent() {
         gap: '1rem'
       }}>
         <p style={{ margin: 0, textAlign: 'center' }}>
-        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content. By clicking “Accept All,” you consent to the use of all cookies.
+        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content. By clicking "Accept All," you consent to the use of all cookies.
         </p>
         <div className="cookie-buttons" style={{
           display: 'flex',

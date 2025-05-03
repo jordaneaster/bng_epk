@@ -2,45 +2,113 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FaInstagram, FaTwitter, FaYoutube, FaSpotify, FaApple } from 'react-icons/fa';
+import { FaInstagram, FaTwitter, FaYoutube, FaSpotify, FaApple, FaTimes, FaHandPointRight } from 'react-icons/fa';
 import VideoEmbed from './VideoEmbed';
 import MusicPlayerEmbed from './MusicPlayerEmbed';
 import { supabase } from '../lib/supabaseClient';
+import { trackClickEvent } from '../lib/gtag'; // Import the GA tracking function
 
-const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) => {
+const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
   const [imgSrc, setImgSrc] = useState(bgImage || '/images/hero-bg.jpg');
   const [isMobile, setIsMobile] = useState(false);
-  const [albumArtUrl, setAlbumArtUrl] = useState(latestTrack?.imageUrl || null);
+  const [featuredTracks, setFeaturedTracks] = useState([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayTrack, setOverlayTrack] = useState(null);
+  const overlayRef = useRef(null);
 
-  // Fetch album artwork from Supabase if not provided in props
+  // The current track to display
+  const currentTrack = featuredTracks[currentTrackIndex] || null;
+
+  // Fetch all featured tracks from the database
   useEffect(() => {
-    const fetchAlbumArtwork = async () => {
-      if (!latestTrack?.imageUrl && latestTrack) {
-        try {
-          // Get the album art from Supabase storage
-          const { data, error } = await supabase
-            .storage
-            .from('album-marketing')
-            .getPublicUrl('bng/bape.jpg');
-            
-          if (error) {
-            console.error('Error fetching album artwork:', error);
-            return;
-          }
+    const fetchFeaturedTracks = async () => {
+      try {
+        setLoading(true);
+        // Query all tracks where featured is true
+        const { data, error } = await supabase
+          .from('bng_music')
+          .select('*')
+          .eq('featured', true)
+          .order('created_at', { ascending: false });
           
-          if (data?.publicUrl) {
-            setAlbumArtUrl(data.publicUrl);
-          }
-        } catch (error) {
-          console.error('Error in fetching album artwork:', error);
+        if (error) {
+          console.error('Error fetching featured tracks:', error);
+          return;
         }
+        
+        if (data && data.length > 0) {
+          // Process each track to get its album artwork
+          const tracksWithArtwork = await Promise.all(
+            data.map(async (track) => {
+              if (track.image_url) {
+                // Check if image_url is already a full URL
+                if (track.image_url.startsWith('http')) {
+                  // If it's already a full URL, use it directly
+                  return {
+                    ...track,
+                    imageUrl: track.image_url
+                  };
+                } else {
+                  // If it's a relative path, get the public URL
+                  const { data: imageData, error: imageError } = await supabase
+                    .storage
+                    .from('album-marketing')
+                    .getPublicUrl(track.image_url);
+                    
+                  if (imageError) {
+                    console.error('Error fetching album artwork:', imageError);
+                    return track;
+                  }
+                  
+                  return {
+                    ...track,
+                    imageUrl: imageData.publicUrl
+                  };
+                }
+              }
+              return track;
+            })
+          );
+          
+          setFeaturedTracks(tracksWithArtwork);
+          
+          // Check if any track has overlay set to true
+          const overlayTrack = tracksWithArtwork.find(track => track.overlay === true);
+          if (overlayTrack) {
+            setOverlayTrack(overlayTrack);
+            setShowOverlay(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetching featured tracks:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
-    fetchAlbumArtwork();
-  }, [latestTrack]);
+    fetchFeaturedTracks();
+  }, []);
+
+  // Handle click outside of overlay to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (overlayRef.current && !overlayRef.current.contains(event.target)) {
+        setShowOverlay(false);
+      }
+    };
+
+    if (showOverlay) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showOverlay]);
 
   // Handle responsive layout detection
   useEffect(() => {
@@ -65,6 +133,20 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     }
   };
 
+  // Function to cycle to the next featured track
+  const nextTrack = () => {
+    setCurrentTrackIndex((prevIndex) => 
+      prevIndex === featuredTracks.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  // Function to cycle to the previous featured track
+  const prevTrack = () => {
+    setCurrentTrackIndex((prevIndex) => 
+      prevIndex === 0 ? featuredTracks.length - 1 : prevIndex - 1
+    );
+  };
+
   // Styles for different screen sizes
   const heroSectionStyle = {
     position: 'relative',
@@ -72,7 +154,7 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     minHeight: isMobile ? '90vh' : '80vh',
     overflow: 'auto',
     color: '#fff',
-    backgroundColor: '#000', // Black background for when 'contain' leaves empty space
+    backgroundColor: '#000',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -87,18 +169,16 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     flexDirection: isMobile ? 'column' : 'row',
     paddingTop: isMobile ? '15vh' : '18vh',
     paddingBottom: isMobile ? '2rem' : '3rem',
-    maxWidth: '1400px', // Limit maximum width for very large screens
+    maxWidth: '1400px',
     margin: '0 auto',
   };
 
-  // Image styles based on device - removed height and width properties
   const imageStyle = {
     objectFit: 'contain',
     filter: 'brightness(0.9)',
     objectPosition: 'top center',
   };
 
-  // Adjusted image container style - this controls the image size
   const imageContainerStyle = {
     position: 'relative',
     width: '100%',
@@ -111,7 +191,6 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     backgroundColor: '#000',
   };
 
-  // Column styles with responsive adjustments
   const leftColumnStyle = {
     width: isMobile ? '100%' : '25%',
     padding: isMobile ? '0 1rem 2rem' : '0 2rem',
@@ -119,7 +198,7 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    order: isMobile ? 2 : 1, // Reorder for mobile
+    order: isMobile ? 2 : 1,
   };
 
   const centerColumnStyle = {
@@ -130,7 +209,7 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    order: isMobile ? 1 : 2, // Reorder for mobile - main content first
+    order: isMobile ? 1 : 2,
   };
 
   const rightColumnStyle = {
@@ -143,16 +222,14 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     order: isMobile ? 3 : 3,
   };
 
-  // Card styles - made more transparent
   const cardStyle = {
-    background: 'rgba(0,0,0,0.3)', // Reduced opacity from 0.6 to 0.3
+    background: 'rgba(0,0,0,0.3)',
     padding: '1.5rem',
     borderRadius: '8px',
     width: '100%',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   };
 
-  // Social icons styles
   const socialIconsStyle = {
     marginTop: isMobile ? '1.5rem' : '2rem',
     display: 'flex',
@@ -161,7 +238,6 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     fontSize: isMobile ? '1.75rem' : '2rem',
   };
 
-  // Title styles with responsive text sizes
   const titleStyle = {
     fontSize: isMobile ? '2.5rem' : '3.5rem',
     marginBottom: '0.5rem',
@@ -175,7 +251,6 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
   };
 
-  // Button styles
   const buttonBlockStyle = {
     display: 'block',
     width: '100%',
@@ -185,150 +260,361 @@ const Hero = ({ title, subtitle, bgImage, latestTrack, featuredVideos = [] }) =>
     borderRadius: '4px',
   };
 
+  const navButtonStyle = {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    border: 'none',
+    borderRadius: '4px',
+    padding: '5px 10px',
+    color: 'white',
+    cursor: 'pointer',
+    margin: '0 5px',
+    fontSize: '0.8rem'
+  };
+
+  const trackNavigationStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '1rem',
+    marginBottom: '0.5rem'
+  };
+
+  const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    display: showOverlay ? 'flex' : 'none',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: '20px'
+  };
+
+  const overlayContentStyle = {
+    backgroundColor: '#121212',
+    width: isMobile ? '90%' : '500px',
+    maxWidth: '500px',
+    borderRadius: '10px',
+    padding: '30px',
+    position: 'relative',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+    animation: 'fadeIn 0.5s ease-in-out',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  };
+
+  const closeButtonStyle = {
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    background: 'none',
+    border: 'none',
+    color: '#fff',
+    fontSize: '1.5rem',
+    cursor: 'pointer'
+  };
+
+  const overlayImageStyle = {
+    width: '70%',
+    height: 'auto',
+    marginBottom: '20px',
+    borderRadius: '5px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+    objectFit: 'contain',
+    margin: '0 auto',
+    display: 'block'
+  };
+
+  const overlayButtonsContainerStyle = {
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '10px',
+    width: '100%',
+    position: 'relative',
+    marginTop: '20px',
+    padding: '0 30px'
+  };
+
+  const overlayButtonStyle = {
+    padding: '10px 15px',
+    borderRadius: '30px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    fontWeight: 'bold',
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '1rem',
+    width: isMobile ? '100%' : 'auto',
+    transition: 'transform 0.3s ease'
+  };
+
+  const pointerStyle = {
+    position: 'absolute',
+    left: '0px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    animation: 'pointRight 1s infinite alternate',
+    fontSize: '1.8rem',
+    color: '#FFF',
+    display: isMobile ? 'none' : 'block'
+  };
+
   return (
-    <div className="hero-section" style={heroSectionStyle}>
-      <div style={imageContainerStyle}>
-        <Image 
-          src={imgSrc}
-          alt="Hero Background" 
-          fill  // This works with the parent's dimensions
-          priority
-          onError={handleError}
-          style={imageStyle}  // No height or width here
-          sizes="100vw"
-          quality={85}
-        />
-      </div>
-      <div className="hero-layout" style={heroLayoutStyle}>
-        {/* Center Column - Main Hero Content */}
-        <div className="hero-center" style={centerColumnStyle}>
-          <div className="fade-in">
-            <h1 style={titleStyle}>{title}</h1>
-            {subtitle && <p style={subtitleStyle}>{subtitle}</p>}
-          
-            <div className="social-icons" style={socialIconsStyle}>
-              <Link href="#" aria-label="Instagram"><FaInstagram /></Link>
-              <Link href="#" aria-label="Twitter"><FaTwitter /></Link>
-              <Link href="#" aria-label="YouTube"><FaYoutube /></Link>
-              <Link href="#" aria-label="Spotify"><FaSpotify /></Link>
-              <Link href="#" aria-label="Apple Music"><FaApple /></Link>
+    <>
+      {/* Overlay */}
+      {overlayTrack && (
+        <div style={overlayStyle}>
+          <div ref={overlayRef} style={overlayContentStyle}>
+            <button 
+              onClick={() => setShowOverlay(false)}
+              style={closeButtonStyle}
+              aria-label="Close"
+            >
+              <FaTimes />
+            </button>
+            
+            <h2 style={{ marginBottom: '15px', textAlign: 'center' }}>New Release!</h2>
+            <h3 style={{ marginBottom: '25px', textAlign: 'center' }}>{overlayTrack.title}</h3>
+            
+            {overlayTrack.imageUrl && (
+              <div style={{ width: '100%', textAlign: 'center' }}>
+                <Image 
+                  src={overlayTrack.imageUrl}
+                  alt={`${overlayTrack.title} Album Art`}
+                  width={300}
+                  height={300}
+                  style={overlayImageStyle}
+                />
+              </div>
+            )}
+            
+            <p style={{ marginBottom: '15px', textAlign: 'center' }}>Listen now on your favorite platform!</p>
+            
+            <div style={overlayButtonsContainerStyle}>
+              <FaHandPointRight style={pointerStyle} />
+              
+              {overlayTrack.spotify_link && (
+                <Link 
+                  href={overlayTrack.spotify_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'spotify',
+                    track_title: overlayTrack.title,
+                    track_id: overlayTrack.id
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#1DB954'
+                  }}
+                >
+                  <FaSpotify /> Spotify
+                </Link>
+              )}
+              
+              {overlayTrack.apple_music_link && (
+                <Link 
+                  href={overlayTrack.apple_music_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'apple_music',
+                    track_title: overlayTrack.title,
+                    track_id: overlayTrack.id
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#FB233B'
+                  }}
+                >
+                  <FaApple /> Apple Music
+                </Link>
+              )}
+              
+              {overlayTrack.youtube_link && (
+                <Link 
+                  href={overlayTrack.youtube_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'youtube',
+                    track_title: overlayTrack.title,
+                    track_id: overlayTrack.id
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#FF0000'
+                  }}
+                >
+                  <FaYoutube /> YouTube
+                </Link>
+              )}
             </div>
           </div>
         </div>
+      )}
+      
+      <div className="hero-section" style={heroSectionStyle}>
+        <div style={imageContainerStyle}>
+          <Image 
+            src={imgSrc}
+            alt="Hero Background" 
+            fill
+            priority
+            onError={handleError}
+            style={imageStyle}
+            sizes="100vw"
+            quality={85}
+          />
+        </div>
+        <div className="hero-layout" style={heroLayoutStyle}>
+          <div className="hero-center" style={centerColumnStyle}>
+            <div className="fade-in">
+              <h1 style={titleStyle}>{title}</h1>
+              {subtitle && <p style={subtitleStyle}>{subtitle}</p>}
+            
+              <div className="social-icons" style={socialIconsStyle}>
+                <Link href="#" aria-label="Instagram"><FaInstagram /></Link>
+                <Link href="#" aria-label="Twitter"><FaTwitter /></Link>
+                <Link href="#" aria-label="YouTube"><FaYoutube /></Link>
+                <Link href="#" aria-label="Spotify"><FaSpotify /></Link>
+                <Link href="#" aria-label="Apple Music"><FaApple /></Link>
+              </div>
+            </div>
+          </div>
 
-        {/* Left Column - Latest Release with Music Player */}
-        <div className="hero-left" style={leftColumnStyle}>
-          <div className="latest-release" style={{...cardStyle, background: 'rgba(0,0,0,0.2)'}}>
-            <h3 style={{ marginBottom: '1rem', fontSize: isMobile ? '1.3rem' : '1.5rem' }}>Latest Release</h3>
-            {latestTrack ? (
-              <>
-                <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{latestTrack.title}</p>
-                <p style={{ marginBottom: '1rem', fontSize: '0.9rem', opacity: '0.9' }}>Out Now</p>
-
-                {/* Album Artwork Image - Using dynamic Supabase URL */}
-                {albumArtUrl && (
-                  <div style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: isMobile ? '180px' : '200px',
-                    marginBottom: '1rem',
-                    borderRadius: '6px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-                  }}>
-                    <Image
-                      src={albumArtUrl}
-                      alt={`${latestTrack.title} Artwork`}
-                      fill
-                      style={{
-                        objectFit: 'contain',
-                        borderRadius: '6px'
-                      }}
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                    />
-                  </div>
-                )}
-
-                {/* Apple Music Player - with additional transparent wrapper */}
-                {latestTrack.appleEmbedId && (
-                  <div style={{ 
-                    marginTop: '1rem', 
-                    marginBottom: '1rem',
-                    background: 'transparent',
-                    backdropFilter: 'none'
-                  }}>
-                    <MusicPlayerEmbed 
-                      type="simpleApple" // Using the new simple custom player
-                      embedId={latestTrack.appleEmbedId} 
-                      title={latestTrack.title} 
-                      isMobile={isMobile}  // Pass the isMobile state
-                    />
-                  </div>
-                )}
-
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', // Always column regardless of device
-                  gap: '0.75rem',
-                  width: '100%'
-                }}>
-                  {latestTrack.spotifyLink && (
-                    <Link 
-                      href={latestTrack.spotifyLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="btn btn-sm"
-                      style={buttonBlockStyle} // Always use block style
-                    >
-                      Stream On Spotify
-                    </Link>
+          <div className="hero-left" style={leftColumnStyle}>
+            <div className="latest-release" style={{...cardStyle, background: 'rgba(0,0,0,0.2)'}}>
+              <h3 style={{ marginBottom: '1rem', fontSize: isMobile ? '1.3rem' : '1.5rem' }}>
+                Featured {featuredTracks.length > 1 ? 'Releases' : 'Release'}
+              </h3>
+              
+              {loading ? (
+                <p>Loading featured tracks...</p>
+              ) : featuredTracks.length > 0 && currentTrack ? (
+                <>
+                  {featuredTracks.length > 1 && (
+                    <div style={trackNavigationStyle}>
+                      <button onClick={prevTrack} style={navButtonStyle}>Previous</button>
+                      <span style={{ margin: '0 10px' }}>
+                        {currentTrackIndex + 1} / {featuredTracks.length}
+                      </span>
+                      <button onClick={nextTrack} style={navButtonStyle}>Next</button>
+                    </div>
                   )}
+
+                  <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{currentTrack.title}</p>
+                  <p style={{ marginBottom: '1rem', fontSize: '0.9rem', opacity: '0.9' }}>Out Now</p>
+
+                  {currentTrack.imageUrl && (
+                    <div style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: isMobile ? '180px' : '200px',
+                      marginBottom: '1rem',
+                      borderRadius: '6px',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                    }}>
+                      <Image
+                        src={currentTrack.imageUrl}
+                        alt={`${currentTrack.title} Artwork`}
+                        fill
+                        style={{
+                          objectFit: 'contain',
+                          borderRadius: '6px'
+                        }}
+                        sizes="(max-width: 768px) 100vw, 25vw"
+                      />
+                    </div>
+                  )}
+
+                  {currentTrack.apple_embed_id && (
+                    <div style={{ 
+                      marginTop: '1rem', 
+                      marginBottom: '1rem',
+                      background: 'transparent',
+                      backdropFilter: 'none'
+                    }}>
+                      <MusicPlayerEmbed 
+                        type="simpleApple"
+                        embedId={currentTrack.apple_embed_id} 
+                        title={currentTrack.title} 
+                        isMobile={isMobile}
+                      />
+                    </div>
+                  )}
+
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    width: '100%'
+                  }}>
+                    {currentTrack.spotify_link && (
+                      <Link 
+                        href={currentTrack.spotify_link} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn btn-sm"
+                        style={buttonBlockStyle}
+                      >
+                        Stream On Spotify
+                      </Link>
+                    )}
+                    <Link 
+                      href="/music" 
+                      className="btn btn-sm"
+                      style={buttonBlockStyle}
+                    >
+                      More Music
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <p>No releases available</p>
+              )}
+            </div>
+          </div>
+
+          <div className="hero-right" style={rightColumnStyle}>
+            <div className="featured-videos" style={cardStyle}>
+              <h3 style={{ marginBottom: '1rem', fontSize: isMobile ? '1.3rem' : '1.5rem' }}>Featured Videos</h3>
+              {featuredVideos.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {featuredVideos.slice(0, isMobile ? 1 : 2).map((video, index) => (
+                    <div key={index} className="video-wrapper" style={{ width: '100%' }}>
+                      <VideoEmbed
+                        videoId={video.id}
+                        platform={video.platform}
+                        title={video.title}
+                      />
+                    </div>
+                  ))}
                   <Link 
-                    href="/music" 
-                    className="btn btn-sm"
-                    style={buttonBlockStyle} // Always use block style
+                    href="/videos" 
+                    className="btn btn-block"
+                    style={buttonBlockStyle}
                   >
-                    More Music
+                    {isMobile && featuredVideos.length > 1 ? `+ ${featuredVideos.length - 1} More Videos` : "Watch More"}
                   </Link>
                 </div>
-              </>
-            ) : (
-              <p>No releases available</p>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column - Video Embeds */}
-        <div className="hero-right" style={rightColumnStyle}>
-          <div className="featured-videos" style={cardStyle}>
-            <h3 style={{ marginBottom: '1rem', fontSize: isMobile ? '1.3rem' : '1.5rem' }}>Featured Videos</h3>
-            {featuredVideos.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* On mobile, only show the first video to save space */}
-                {featuredVideos.slice(0, isMobile ? 1 : 2).map((video, index) => (
-                  <div key={index} className="video-wrapper" style={{ width: '100%' }}>
-                    <VideoEmbed
-                      videoId={video.id}
-                      platform={video.platform}
-                      title={video.title}
-                    />
-                  </div>
-                ))}
-                <Link 
-                  href="/videos" 
-                  className="btn btn-block"
-                  style={buttonBlockStyle}
-                >
-                  {isMobile && featuredVideos.length > 1 ? `+ ${featuredVideos.length - 1} More Videos` : "Watch More"}
-                </Link>
-              </div>
-            ) : (
-              <p>No videos available</p>
-            )}
+              ) : (
+                <p>No videos available</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

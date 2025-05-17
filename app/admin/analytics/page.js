@@ -6,7 +6,11 @@ import {
   Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer
 } from 'recharts';
 import { isAuthenticated, signOut } from '../../../lib/auth';
-import { fetchGaPageViews, fetchGaEvents, fetchGaReferrals } from '../../../lib/gaApi';
+import { 
+  fetchGaPageViews, fetchGaEvents, fetchGaReferrals,
+  mockPageViews, mockEventCounts, mockReferrals,
+  signOutFromGoogle
+} from '../../../lib/gaApi';
 import styles from './analytics.module.css';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CFF', '#FF6663'];
@@ -17,14 +21,17 @@ export default function AnalyticsDashboard() {
   const [referrals, setReferrals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [gaAuthRequired, setGaAuthRequired] = useState(false);
   const [timeRange, setTimeRange] = useState('7days');
   const [authStatus, setAuthStatus] = useState('checking');
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isDev, setIsDev] = useState(false);
 
   // Handle mounting state - fix for hydration issues
   useEffect(() => {
     setMounted(true);
+    setIsDev(process.env.NODE_ENV === 'development');
   }, []);
 
   // Authentication check
@@ -54,6 +61,7 @@ export default function AnalyticsDashboard() {
       
       setIsLoading(true);
       setError(null);
+      setGaAuthRequired(false);
       
       try {
         // Convert timeRange to actual date ranges
@@ -68,19 +76,63 @@ export default function AnalyticsDashboard() {
         const startDateStr = startDate.toISOString().split('T')[0];
         const endDateStr = endDate.toISOString().split('T')[0];
         
-        // Fetch real analytics data
-        const [pageViewsData, eventsData, referralsData] = await Promise.all([
-          fetchGaPageViews(startDateStr, endDateStr),
-          fetchGaEvents(startDateStr, endDateStr),
-          fetchGaReferrals(startDateStr, endDateStr)
-        ]);
-        
-        setPageViews(pageViewsData);
-        setEventCounts(eventsData);
-        setReferrals(referralsData);
+        try {
+          // Fetch real analytics data
+          const [pageViewsData, eventsData, referralsData] = await Promise.all([
+            fetchGaPageViews(startDateStr, endDateStr),
+            fetchGaEvents(startDateStr, endDateStr),
+            fetchGaReferrals(startDateStr, endDateStr)
+          ]);
+          
+          // Check if we got actual data back
+          if (pageViewsData.length === 0) {
+            console.warn('No page view data returned, using mock data');
+            setPageViews(mockPageViews);
+          } else {
+            setPageViews(pageViewsData);
+          }
+          
+          if (eventsData.length === 0) {
+            console.warn('No event data returned, using mock data');
+            setEventCounts(mockEventCounts);
+          } else {
+            setEventCounts(eventsData);
+          }
+          
+          if (referralsData.length === 0) {
+            console.warn('No referral data returned, using mock data');
+            setReferrals(mockReferrals);
+          } else {
+            setReferrals(referralsData);
+          }
+          
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          
+          // Check if it's an authentication error
+          if (apiError.message && (
+              apiError.message.includes('User declined to authorize') ||
+              apiError.message.includes('authentication credentials')
+          )) {
+            setGaAuthRequired(true);
+            setError("Google Analytics authorization required. Please authenticate to view real data.");
+          } else {
+            setError(`API Error: ${apiError.message}. Showing mock data.`);
+          }
+          
+          // Fall back to mock data
+          setPageViews(mockPageViews);
+          setEventCounts(mockEventCounts);
+          setReferrals(mockReferrals);
+        }
       } catch (err) {
         console.error("Error fetching analytics data:", err);
-        setError("Failed to fetch analytics data. Please try again later. Error: " + err.message);
+        setError("Failed to fetch analytics data: " + err.message);
+        
+        // Fall back to mock data as a last resort
+        setPageViews(mockPageViews);
+        setEventCounts(mockEventCounts);
+        setReferrals(mockReferrals);
       } finally {
         setIsLoading(false);
       }
@@ -89,7 +141,56 @@ export default function AnalyticsDashboard() {
     fetchAnalyticsData();
   }, [timeRange, mounted, authStatus]);
 
+  // Handle retry for Google Analytics authorization
+  const handleRetryGaAuth = async () => {
+    setIsLoading(true);
+    setError(null);
+    setGaAuthRequired(false);
+    
+    try {
+      // Convert timeRange to actual date ranges
+      const endDate = new Date();
+      const startDate = new Date();
+      
+      if (timeRange === '7days') startDate.setDate(endDate.getDate() - 7);
+      else if (timeRange === '30days') startDate.setDate(endDate.getDate() - 30);
+      else if (timeRange === '90days') startDate.setDate(endDate.getDate() - 90);
+      
+      // Format dates for GA API (YYYY-MM-DD)
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+      
+      // Try fetching one metric to trigger auth flow
+      await fetchGaPageViews(startDateStr, endDateStr);
+      
+      // If successful, refetch all data
+      const [pageViewsData, eventsData, referralsData] = await Promise.all([
+        fetchGaPageViews(startDateStr, endDateStr),
+        fetchGaEvents(startDateStr, endDateStr),
+        fetchGaReferrals(startDateStr, endDateStr)
+      ]);
+      
+      setPageViews(pageViewsData);
+      setEventCounts(eventsData);
+      setReferrals(referralsData);
+      
+    } catch (error) {
+      console.error("Auth retry failed:", error);
+      setError("Google Analytics authorization failed. Using mock data.");
+      
+      // Keep using mock data
+      setPageViews(mockPageViews);
+      setEventCounts(mockEventCounts);
+      setReferrals(mockReferrals);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = () => {
+    // Sign out from Google Analytics as well
+    signOutFromGoogle();
+    // Sign out from our app
     signOut();
     setAuthStatus('unauthenticated');
     router.push('/admin/login');
@@ -128,6 +229,13 @@ export default function AnalyticsDashboard() {
         </button>
       </div>
 
+      {isDev && (
+        <div className={styles.devBanner}>
+          <strong>Development Environment</strong> - Using mock analytics data. 
+          Real data will be displayed in production.
+        </div>
+      )}
+
       <div className={styles.timeRangeSelector}>
         <select
           value={timeRange}
@@ -140,7 +248,26 @@ export default function AnalyticsDashboard() {
         </select>
       </div>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {gaAuthRequired && (
+        <div className={styles.authRequired}>
+          <h3>Google Analytics Authorization Required</h3>
+          <p>To view real analytics data from your website, you need to authorize access to your Google Analytics account.</p>
+          <button 
+            onClick={handleRetryGaAuth}
+            className={styles.gaAuthButton}
+          >
+            Authorize Google Analytics
+          </button>
+          <p className={styles.smallText}>Currently showing mock data.</p>
+        </div>
+      )}
+
+      {error && !gaAuthRequired && (
+        <div className={styles.error}>
+          {error}
+          <p className={styles.smallText}>Showing fallback data. Check console for more details.</p>
+        </div>
+      )}
 
       {isLoading ? (
         <div className={styles.loading}>Loading data...</div>

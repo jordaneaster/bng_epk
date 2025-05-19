@@ -174,7 +174,7 @@ export default function MailingListSubscribe() {
               </div>
               
               <div className="preferences-section">
-                <p className="preference-title">I'm interested in:</p>
+                <p className="preference-title">I&apos;m interested in:</p>
                 <div className="preferences-grid">
                   <label className={`preference-checkbox ${preferences.music ? 'checked' : ''}`}>
                     <input 

@@ -25,7 +25,6 @@ if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWO
       logger: process.env.EMAIL_DEBUG === 'true',
     });
     
-    console.log(`Email transport configured with user: ${process.env.EMAIL_USER}`);
   } catch (error) {
     console.error('Error setting up email transporter:', error);
   }
@@ -128,10 +127,8 @@ export async function POST(request) {
           `,
         };
         
-        console.log(`Attempting to send email from: ${mailOptions.from} to: ${mailOptions.to}`);
         
         const info = await transporter.sendMail(mailOptions);
-        console.log('Mail sending result:', info);
         
         emailStatus = 'Sent successfully';
         emailDetails = {
@@ -152,7 +149,6 @@ export async function POST(request) {
               ? `Added to mailing list: ${result.message}` 
               : `Failed to add to list: ${result.message}`;
             
-            console.log('Mailing list subscription result:', result);
             
             const mailingListOptions = {
               from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
@@ -177,12 +173,9 @@ export async function POST(request) {
               }
             };
             
-            console.log(`Sending to mailing list: ${process.env.EMAIL_MAILING_LIST}`);
             const listInfo = await transporter.sendMail(mailingListOptions);
             mailingListStatus += ' and notification sent to existing subscribers';
-            console.log('Mailing list sending result:', listInfo);
           } catch (listError) {
-            console.error('Failed to handle mailing list operations:', listError);
             mailingListStatus = `Mailing list error: ${listError.message}`;
           }
         }
@@ -199,7 +192,6 @@ export async function POST(request) {
         emailDetails = { error: emailError.message };
       }
     } else {
-      console.log('Email transport not configured, skipping notification email');
       emailStatus = 'Transport not configured';
     }
 

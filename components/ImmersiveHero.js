@@ -22,8 +22,6 @@ const ImmersiveHero = ({
   // Log latestRelease for debugging
   useEffect(() => {
     if (latestRelease) {
-      console.log("Latest release data:", latestRelease);
-      console.log("Image URL:", latestRelease.image_url);
     }
   }, [latestRelease]);
 
@@ -209,11 +207,7 @@ const ImmersiveHero = ({
         )}
       </div>
 
-      {/* Scroll indicator */}
-      <div className="scroll-indicator">
-        <div className="arrow"></div>
-        <span>Scroll to explore</span>
-      </div>
+
 
       <style jsx>{`
         .immersive-hero {

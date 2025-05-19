@@ -2,10 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['rzdoygryvifvcmhhbiaq.supabase.co'], // Add any external domains if needed
-    // Increase the size limit if you have large images
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 64, 96, 128, 256, 384],
+    domains: [
+      // Add your Supabase domain here
+      'sdnmjbqhclrzzxcjwtrk.supabase.co',
+      'xnfdhoszwrneeajlnoco.supabase.co', // This is an example - use your actual Supabase domain
+      'supabase.co',
+      'lxpyjvqzobcbydojwhov.supabase.co',
+      'supabasestorage.com',
+      'rzdoygryvifvcmhhbiaq.supabase.co',
+    ],
   },
 }
 

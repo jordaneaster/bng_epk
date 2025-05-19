@@ -8,7 +8,7 @@ import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/music', label: 'Music' },
-  { href: '/videos', label: 'Videos' },
+  // { href: '/videos', label: 'Videos' },
   { href: '/photos', label: 'Photos' },
   { href: '/tour', label: 'Tour' },
   { href: '/epk', label: 'EPK' },  // Add EPK link here

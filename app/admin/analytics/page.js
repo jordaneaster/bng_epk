@@ -26,12 +26,10 @@ export default function AnalyticsDashboard() {
   const [authStatus, setAuthStatus] = useState('checking');
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [isDev, setIsDev] = useState(false);
 
   // Handle mounting state - fix for hydration issues
   useEffect(() => {
     setMounted(true);
-    setIsDev(process.env.NODE_ENV === 'development');
   }, []);
 
   // Authentication check
@@ -228,13 +226,6 @@ export default function AnalyticsDashboard() {
           Logout
         </button>
       </div>
-
-      {isDev && (
-        <div className={styles.devBanner}>
-          <strong>Development Environment</strong> - Using mock analytics data. 
-          Real data will be displayed in production.
-        </div>
-      )}
 
       <div className={styles.timeRangeSelector}>
         <select

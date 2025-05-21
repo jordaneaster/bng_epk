@@ -40,7 +40,7 @@ export default async function Blog() {
         <div className="text-center py-12">
           <h2 className="text-2xl mb-4">Coming Soon</h2>
           <p className="text-gray-400">
-            We're working on some exciting content. Check back soon for updates, music news, and stories from BNG Music Entertainment.
+            We&apos;re working on some exciting content. Check back soon for updates, music news, and stories from BNG Music Entertainment.
           </p>
         </div>
       </div>

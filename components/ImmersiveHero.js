@@ -22,27 +22,22 @@ const ImmersiveHero = ({
   const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Log latestRelease for debugging
   useEffect(() => {
     if (latestRelease) {
     }
   }, [latestRelease]);
 
-  // Check if the image URL is a valid URL format
   const isValidImageUrl = (url) => {
     if (!url) return false;
     
-    // Check if URL starts with http:// or https://
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       return false;
     }
     
-    // Additional validation could be added here if needed
     return true;
   };
 
   useEffect(() => {
-    // Check for mobile
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -50,7 +45,6 @@ const ImmersiveHero = ({
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
-    // Add animation class after component mounts for entrance effect
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -74,11 +68,9 @@ const ImmersiveHero = ({
     });
   };
 
-  // Get appropriate image source with validation
   const getImageSrc = () => {
     if (!latestRelease) return '/images/default-cover.jpg';
     
-    // Check if image_url exists and is valid
     if (latestRelease.imageUrl && isValidImageUrl(latestRelease.imageUrl)) {
       return latestRelease.imageUrl;
     }
@@ -97,7 +89,6 @@ const ImmersiveHero = ({
     setErrorMessage('');
     
     try {
-      // This would be replaced with your actual API call
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
@@ -109,7 +100,6 @@ const ImmersiveHero = ({
       if (response.ok) {
         setSubscribeStatus('success');
         setEmail('');
-        // Track successful subscription
         trackClickEvent('hero_subscribe', { 
           action: 'subscribe_success'
         });
@@ -141,7 +131,6 @@ const ImmersiveHero = ({
 
   return (
     <div className="immersive-hero">
-      {/* Video Background */}
       <div className="hero-background">
         {!isVideoError ? (
           <video
@@ -153,7 +142,6 @@ const ImmersiveHero = ({
             onError={() => setIsVideoError(true)}
           >
             <source src={videoUrl} type="video/mp4" />
-            {/* Fallback to image if video fails */}
             <Image 
               src={fallbackImageUrl} 
               alt={artistName} 
@@ -174,10 +162,8 @@ const ImmersiveHero = ({
           />
         )}
         
-        {/* Overlay gradient */}
         <div className="hero-overlay"></div>
         
-        {/* Audio controls */}
         {!isVideoError && (
           <button 
             onClick={toggleMute} 
@@ -189,7 +175,6 @@ const ImmersiveHero = ({
         )}
       </div>
       
-      {/* Hero content */}
       <div className={`hero-content ${isLoaded ? 'loaded' : ''}`}>
         <div className="content-columns">
           <div className="left-column">
@@ -264,7 +249,6 @@ const ImmersiveHero = ({
               </div>
             )}
             
-            {/* Primary CTA Button */}
             <div className="cta-container">
               <Link 
                 href="/music" 
@@ -286,7 +270,6 @@ const ImmersiveHero = ({
           </div>
           
           <div className="right-column">
-            {/* Subscribe Form */}
             <div className="subscribe-container">
               <div className="subscribe-content">
                 <div className="subscribe-header">
@@ -530,7 +513,6 @@ const ImmersiveHero = ({
           background: #ff0000;
         }
         
-        /* CTA Section Styles */
         .cta-container {
           margin-top: 1rem;
           display: flex;
@@ -584,7 +566,6 @@ const ImmersiveHero = ({
           transform: translateY(-3px);
         }
         
-        /* Subscribe Form Styles */
         .subscribe-container {
           width: 100%;
           background: rgba(0, 0, 0, 0.7);
@@ -630,14 +611,17 @@ const ImmersiveHero = ({
         .form-group {
           display: flex;
           margin-bottom: 0.5rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
         }
         
         .subscribe-form input {
           flex: 1;
+          min-width: 0;
           padding: 0.8rem 1rem;
           border: 1px solid rgba(255, 255, 255, 0.2);
           background: rgba(0, 0, 0, 0.3);
-          border-radius: 4px 0 0 4px;
+          border-radius: 4px;
           color: white;
           font-size: 1rem;
         }
@@ -657,10 +641,14 @@ const ImmersiveHero = ({
           color: white;
           font-weight: 600;
           border: none;
-          border-radius: 0 4px 4px 0;
+          border-radius: 4px;
           cursor: pointer;
           transition: background 0.3s ease;
-          white-space: nowrap;
+          white-space: normal;
+          min-height: 48px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         
         .subscribe-btn:hover {
@@ -699,24 +687,6 @@ const ImmersiveHero = ({
           text-align: center;
         }
         
-        .fallback-image-container {
-          width: 180px;
-          height: 180px;
-          border-radius: 4px;
-          background: linear-gradient(135deg, #333 0%, #111 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .fallback-image {
-          font-size: 3.5rem;
-          font-weight: bold;
-          color: #fff;
-          text-transform: uppercase;
-        }
-        
-        /* Media queries for responsive design */
         @media (max-width: 992px) {
           .content-columns {
             flex-direction: column;
@@ -741,40 +711,60 @@ const ImmersiveHero = ({
             overflow-y: auto;
           }
           
-          .artist-name {
-            font-size: 3rem;
-          }
-          
-          .artist-tagline {
-            font-size: 1.2rem;
-          }
-          
-          .release-content {
-            flex-direction: column;
-            text-align: center;
-          }
-          
-          .release-artwork {
-            margin-bottom: 1rem;
-          }
-          
-          .streaming-links {
-            justify-content: center;
-          }
-          
-          .cta-container {
-            flex-direction: column;
-          }
-          
-          .main-cta-button,
-          .secondary-cta-button {
-            width: 100%;
-            justify-content: center;
-            text-align: center;
+          .subscribe-content {
+            padding: 1.5rem;
           }
           
           .subscribe-header h3 {
             font-size: 1.3rem;
+          }
+          
+          .form-group {
+            flex-direction: column;
+          }
+          
+          .subscribe-form input {
+            width: 100%;
+            border-radius: 4px;
+          }
+          
+          .subscribe-btn {
+            width: 100%;
+            border-radius: 4px;
+            padding: 0.75rem;
+          }
+        }
+        
+        @media (max-width: 400px) {
+          .hero-content {
+            padding: 1rem;
+            padding-top: 5rem;
+          }
+          
+          .artist-name {
+            font-size: 2.5rem;
+          }
+          
+          .artist-tagline {
+            font-size: 1rem;
+          }
+          
+          .subscribe-content {
+            padding: 1.25rem;
+          }
+          
+          .subscribe-header h3 {
+            font-size: 1.2rem;
+          }
+          
+          .subscribe-container p {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+          }
+          
+          .subscribe-btn {
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
           }
         }
       `}</style>

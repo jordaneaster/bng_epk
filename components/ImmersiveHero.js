@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaSpotify, FaApple, FaYoutube, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { FaSpotify, FaApple, FaYoutube, FaVolumeUp, FaVolumeMute, FaArrowRight, FaLock } from 'react-icons/fa';
 import { trackClickEvent } from '../lib/gtag';
 
 const ImmersiveHero = ({ 
@@ -18,6 +18,9 @@ const ImmersiveHero = ({
   const [isVideoError, setIsVideoError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [email, setEmail] = useState('');
+  const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
+  const [errorMessage, setErrorMessage] = useState('');
   
   // Log latestRelease for debugging
   useEffect(() => {
@@ -83,6 +86,59 @@ const ImmersiveHero = ({
     return '/images/default-cover.jpg';
   };
 
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setErrorMessage('Please enter a valid email address');
+      return;
+    }
+
+    setSubscribeStatus('loading');
+    setErrorMessage('');
+    
+    try {
+      // This would be replaced with your actual API call
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (response.ok) {
+        setSubscribeStatus('success');
+        setEmail('');
+        // Track successful subscription
+        trackClickEvent('hero_subscribe', { 
+          action: 'subscribe_success'
+        });
+      } else {
+        const error = await response.json();
+        setSubscribeStatus('error');
+        setErrorMessage(error.message || 'Something went wrong. Please try again.');
+        trackClickEvent('hero_subscribe', { 
+          action: 'subscribe_error',
+          error: error.message
+        });
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      setSubscribeStatus('error');
+      setErrorMessage('Network error. Please try again.');
+      trackClickEvent('hero_subscribe', { 
+        action: 'subscribe_error',
+        error: 'network_error'
+      });
+    }
+  };
+
+  const handleCtaClick = (ctaType) => {
+    trackClickEvent('hero_cta_click', { 
+      cta_type: ctaType
+    });
+  };
+
   return (
     <div className="immersive-hero">
       {/* Video Background */}
@@ -135,79 +191,148 @@ const ImmersiveHero = ({
       
       {/* Hero content */}
       <div className={`hero-content ${isLoaded ? 'loaded' : ''}`}>
-        <div className="artist-info">
-          <h1 className="artist-name">{artistName}</h1>
-          <p className="artist-tagline">{tagline}</p>
-        </div>
-        
-        {latestRelease && (
-          <div className="latest-release">
-            <div className="release-content">
-              <div className="release-artwork">
-                {imageError ? (
-                  <div className="fallback-image-container">
-                    <div className="fallback-image">
-                      {latestRelease.title?.charAt(0) || '?'}
+        <div className="content-columns">
+          <div className="left-column">
+            <div className="artist-info">
+              <h1 className="artist-name">{artistName}</h1>
+              <p className="artist-tagline">{tagline}</p>
+            </div>
+            
+            {latestRelease && (
+              <div className="latest-release">
+                <div className="release-content">
+                  <div className="release-artwork">
+                    {imageError ? (
+                      <div className="fallback-image-container">
+                        <div className="fallback-image">
+                          {latestRelease.title?.charAt(0) || '?'}
+                        </div>
+                      </div>
+                    ) : (
+                      <img 
+                        src={getImageSrc()}
+                        alt={latestRelease.title || 'Latest Release'} 
+                        width={180} 
+                        height={180}
+                        style={{ objectFit: 'cover', borderRadius: '4px' }}
+                        onError={() => setImageError(true)}
+                      />
+                    )}
+                  </div>
+                  
+                  <div className="release-info">
+                    <span className="latest-label">Latest Drop</span>
+                    <h2 className="release-title">{latestRelease.title}</h2>
+                    
+                    <div className="streaming-links">
+                      {latestRelease.spotify_link && (
+                        <Link 
+                          href={latestRelease.spotify_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => handleStreamingClick('spotify')}
+                          className="streaming-link spotify"
+                        >
+                          <FaSpotify /> <span>Spotify</span>
+                        </Link>
+                      )}
+                      {latestRelease.apple_music_link && (
+                        <Link 
+                          href={latestRelease.apple_music_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => handleStreamingClick('apple')}
+                          className="streaming-link apple"
+                        >
+                          <FaApple /> <span>Apple Music</span>
+                        </Link>
+                      )}
+                      {latestRelease.youtube_link && (
+                        <Link 
+                          href={latestRelease.youtube_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => handleStreamingClick('youtube')}
+                          className="streaming-link youtube"
+                        >
+                          <FaYoutube /> <span>YouTube</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
-                ) : (
-                  <img 
-                    src={getImageSrc()}
-                    alt={latestRelease.title || 'Latest Release'} 
-                    width={180} 
-                    height={180}
-                    style={{ objectFit: 'cover', borderRadius: '4px' }}
-                    onError={() => setImageError(true)}
-                  />
-                )}
-              </div>
-              
-              <div className="release-info">
-                <span className="latest-label">Latest Drop</span>
-                <h2 className="release-title">{latestRelease.title}</h2>
-                
-                <div className="streaming-links">
-                  {latestRelease.spotify_link && (
-                    <Link 
-                      href={latestRelease.spotify_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => handleStreamingClick('spotify')}
-                      className="streaming-link spotify"
-                    >
-                      <FaSpotify /> <span>Spotify</span>
-                    </Link>
-                  )}
-                  {latestRelease.apple_music_link && (
-                    <Link 
-                      href={latestRelease.apple_music_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => handleStreamingClick('apple')}
-                      className="streaming-link apple"
-                    >
-                      <FaApple /> <span>Apple Music</span>
-                    </Link>
-                  )}
-                  {latestRelease.youtube_link && (
-                    <Link 
-                      href={latestRelease.youtube_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => handleStreamingClick('youtube')}
-                      className="streaming-link youtube"
-                    >
-                      <FaYoutube /> <span>YouTube</span>
-                    </Link>
-                  )}
                 </div>
+              </div>
+            )}
+            
+            {/* Primary CTA Button */}
+            <div className="cta-container">
+              <Link 
+                href="/music" 
+                className="main-cta-button"
+                onClick={() => handleCtaClick('explore_music')}
+              >
+                Explore Full Discography
+                <FaArrowRight className="cta-icon" />
+              </Link>
+              
+              <Link 
+                href="/contact" 
+                className="secondary-cta-button"
+                onClick={() => handleCtaClick('booking_inquiries')}
+              >
+                Booking Inquiries
+              </Link>
+            </div>
+          </div>
+          
+          <div className="right-column">
+            {/* Subscribe Form */}
+            <div className="subscribe-container">
+              <div className="subscribe-content">
+                <div className="subscribe-header">
+                  <FaLock className="lock-icon" />
+                  <h3>Get Exclusive Content</h3>
+                </div>
+                <p>Subscribe for early access to new releases, behind-the-scenes content, and VIP event invitations.</p>
+                
+                <form onSubmit={handleSubscribe} className="subscribe-form">
+                  <div className="form-group">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      aria-label="Email for newsletter"
+                      disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
+                      className={errorMessage ? 'error' : ''}
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
+                      className={`subscribe-btn ${subscribeStatus === 'loading' ? 'loading' : ''} ${subscribeStatus === 'success' ? 'success' : ''}`}
+                    >
+                      {subscribeStatus === 'loading' ? 'Subscribing...' : 
+                       subscribeStatus === 'success' ? 'Subscribed!' : 'Subscribe'}
+                    </button>
+                  </div>
+                  
+                  {errorMessage && (
+                    <div className="error-message">{errorMessage}</div>
+                  )}
+                  
+                  {subscribeStatus === 'success' && (
+                    <div className="success-message">Thank you! Check your email for confirmation.</div>
+                  )}
+                </form>
+                
+                <p className="privacy-notice">
+                  We respect your privacy. Unsubscribe at any time.
+                </p>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-
-
 
       <style jsx>{`
         .immersive-hero {
@@ -286,6 +411,25 @@ const ImmersiveHero = ({
           transform: translateY(0);
         }
         
+        .content-columns {
+          display: flex;
+          max-width: 1200px;
+          margin: 0 auto;
+          gap: 3rem;
+          width: 100%;
+        }
+        
+        .left-column {
+          flex: 1;
+          max-width: 650px;
+        }
+        
+        .right-column {
+          flex: 0 0 350px;
+          display: flex;
+          align-items: center;
+        }
+        
         .artist-info {
           margin-bottom: 2rem;
         }
@@ -321,6 +465,7 @@ const ImmersiveHero = ({
           border-radius: 8px;
           padding: 1.5rem;
           border: 1px solid rgba(255,255,255,0.1);
+          margin-bottom: 1.5rem;
         }
         
         .release-content {
@@ -385,50 +530,173 @@ const ImmersiveHero = ({
           background: #ff0000;
         }
         
-        .scroll-indicator {
-          position: absolute;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
+        /* CTA Section Styles */
+        .cta-container {
+          margin-top: 1rem;
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          z-index: 3;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+        
+        .main-cta-button {
+          background: #ff3c00;
           color: white;
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 1.1rem;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: 0 4px 12px rgba(255, 60, 0, 0.3);
+        }
+        
+        .main-cta-button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(255, 60, 0, 0.4);
+        }
+        
+        .cta-icon {
+          transition: transform 0.2s ease;
+        }
+        
+        .main-cta-button:hover .cta-icon {
+          transform: translateX(4px);
+        }
+        
+        .secondary-cta-button {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(5px);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          font-weight: 500;
+          font-size: 1.1rem;
+          text-decoration: none;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          transition: background 0.3s ease, transform 0.3s ease;
+        }
+        
+        .secondary-cta-button:hover {
+          background: rgba(255, 255, 255, 0.25);
+          transform: translateY(-3px);
+        }
+        
+        /* Subscribe Form Styles */
+        .subscribe-container {
+          width: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(10px);
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          overflow: hidden;
+        }
+        
+        .subscribe-content {
+          padding: 2rem;
+        }
+        
+        .subscribe-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .lock-icon {
+          color: #ff3c00;
+          font-size: 1.2rem;
+        }
+        
+        .subscribe-header h3 {
+          font-size: 1.5rem;
+          margin: 0;
+          color: white;
+        }
+        
+        .subscribe-container p {
+          margin-bottom: 1.5rem;
+          font-size: 0.95rem;
+          opacity: 0.9;
+        }
+        
+        .subscribe-form {
+          margin-bottom: 1rem;
+        }
+        
+        .form-group {
+          display: flex;
+          margin-bottom: 0.5rem;
+        }
+        
+        .subscribe-form input {
+          flex: 1;
+          padding: 0.8rem 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 4px 0 0 4px;
+          color: white;
+          font-size: 1rem;
+        }
+        
+        .subscribe-form input:focus {
+          outline: none;
+          border-color: #ff3c00;
+        }
+        
+        .subscribe-form input.error {
+          border-color: #ff3333;
+        }
+        
+        .subscribe-btn {
+          padding: 0 1.5rem;
+          background: #ff3c00;
+          color: white;
+          font-weight: 600;
+          border: none;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+          transition: background 0.3s ease;
+          white-space: nowrap;
+        }
+        
+        .subscribe-btn:hover {
+          background: #ff5c33;
+        }
+        
+        .subscribe-btn:disabled {
+          background: #999;
+          cursor: not-allowed;
+        }
+        
+        .subscribe-btn.loading {
+          background: #666;
+        }
+        
+        .subscribe-btn.success {
+          background: #4BB543;
+        }
+        
+        .error-message {
+          color: #ff3333;
+          font-size: 0.85rem;
+          margin-top: 0.5rem;
+        }
+        
+        .success-message {
+          color: #4BB543;
+          font-size: 0.85rem;
+          margin-top: 0.5rem;
+        }
+        
+        .privacy-notice {
+          font-size: 0.8rem;
           opacity: 0.7;
-          transition: opacity 0.3s ease;
-          animation: fadeIn 2s ease forwards;
-        }
-        
-        .scroll-indicator:hover {
-          opacity: 1;
-        }
-        
-        .arrow {
-          width: 20px;
-          height: 20px;
-          border-right: 2px solid white;
-          border-bottom: 2px solid white;
-          transform: rotate(45deg);
-          margin-bottom: 10px;
-          animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% {
-            transform: rotate(45deg) translateY(0);
-          }
-          40% {
-            transform: rotate(45deg) translateY(10px);
-          }
-          60% {
-            transform: rotate(45deg) translateY(5px);
-          }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 0.7; }
+          margin-top: 1rem;
+          text-align: center;
         }
         
         .fallback-image-container {
@@ -449,7 +717,30 @@ const ImmersiveHero = ({
         }
         
         /* Media queries for responsive design */
+        @media (max-width: 992px) {
+          .content-columns {
+            flex-direction: column;
+            gap: 2rem;
+          }
+          
+          .right-column {
+            width: 100%;
+            max-width: 600px;
+          }
+          
+          .artist-name {
+            font-size: 4rem;
+          }
+        }
+        
         @media (max-width: 768px) {
+          .hero-content {
+            padding: 1.5rem;
+            justify-content: flex-start;
+            padding-top: 7rem;
+            overflow-y: auto;
+          }
+          
           .artist-name {
             font-size: 3rem;
           }
@@ -469,6 +760,21 @@ const ImmersiveHero = ({
           
           .streaming-links {
             justify-content: center;
+          }
+          
+          .cta-container {
+            flex-direction: column;
+          }
+          
+          .main-cta-button,
+          .secondary-cta-button {
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+          }
+          
+          .subscribe-header h3 {
+            font-size: 1.3rem;
           }
         }
       `}</style>

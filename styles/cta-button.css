@@ -1,0 +1,77 @@
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  gap: 8px;
+  margin: 5px;
+  color: var(--color-text);
+}
+
+.cta-button.full-width {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.cta-icon {
+  font-size: 1.1em;
+}
+
+/* Style variants */
+.stream-cta {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.spotify-cta {
+  background-color: #1DB954;
+  color: #000000;
+}
+
+.apple-cta {
+  background-color: #FA57C1;
+  color: #FFFFFF;
+}
+
+.ticket-cta {
+  background-color: #6200EA;
+  color: #FFFFFF;
+}
+
+.event-cta {
+  background-color: #00B0FF;
+  color: #000000;
+}
+
+.download-cta {
+  background-color: #424242;
+  color: #FFFFFF;
+}
+
+/* Hover effects */
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  
+  /* Make buttons full width on mobile when stacked */
+  .cta-button.mobile-full {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}

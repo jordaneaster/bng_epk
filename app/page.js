@@ -8,14 +8,25 @@ import { artistInfo } from '../data/mockData';
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { createMusicGroupSchema } from '../lib/seo';
-import { FaSpotify, FaApple, FaYoutube } from 'react-icons/fa';
+import { FaSpotify, FaApple, FaYoutube, FaArrowRight } from 'react-icons/fa';
 
 // Since this is now a Client Component, we need to fetch data client-side
 export default function Home() {
   const [musicTracks, setMusicTracks] = useState(null);
   const [videoData, setVideoData] = useState(null);
   const [storyVideos, setStoryVideos] = useState(null);
+  const [blogPosts, setBlogPosts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Format date for blog posts
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -32,9 +43,22 @@ export default function Home() {
         const storyResponse = await fetch('/api/videos?limit=10');
         const storyData = await storyResponse.json();
         
+        // Fetch blog posts
+        const blogResponse = await fetch('/api/blog?limit=3');
+        let blogData;
+        
+        try {
+          blogData = await blogResponse.json();
+        } catch (error) {
+          // If API endpoint doesn't exist yet, create a fallback
+          blogData = { data: [] };
+          console.warn("Blog API not available yet");
+        }
+        
         setMusicTracks(musicData.data || []);
         setVideoData(videoData.data || []);
         setStoryVideos(storyData.data || []);
+        setBlogPosts(blogData.data || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -68,7 +92,6 @@ export default function Home() {
 
   // Transform database videos into storyItems format
   const generateStoryItems = () => {
-    // Default fallback items in case database is empty
     const fallbackItems = [
       {
         id: 'fallback1',
@@ -94,9 +117,7 @@ export default function Home() {
       return fallbackItems;
     }
     
-    // Map database videos to storyItems format
     return storyVideos.map(video => {
-      // Detect Instagram URLs
       let platform = video.medium || 'youtube';
       if (video.video_id && video.video_id.includes('instagram.com')) {
         platform = 'instagram';
@@ -112,14 +133,45 @@ export default function Home() {
         description: video.description || 'Check out this latest video',
         videoId: video.video_id,
         link: platform === 'instagram' 
-          ? video.video_id // Use the full URL for Instagram
+          ? video.video_id 
           : `/videos?v=${video.video_id}`
       };
     });
   };
 
-  // Generate story items from database videos
   const storyItems = generateStoryItems();
+
+  const fallbackBlogPosts = [
+    {
+      id: 'b1',
+      title: 'BNG NappSakk Announces New Single "BAPE"',
+      slug: 'bng-nappsakk-announces-new-single-bape',
+      excerpt: 'BNG NappSakk returns with "BAPE", a hard-hitting new single dropping this Friday that channels the Wilkinsburg energy while paying tribute to iconic streetwear culture.',
+      featured_image: '/images/blog/bape-announcement.jpg',
+      published_at: '2023-05-15T10:00:00.000Z',
+      author_name: 'BNG Team'
+    },
+    {
+      id: 'b2',
+      title: 'Behind the Scenes: Meeting with Jadakiss',
+      slug: 'behind-the-scenes-meeting-with-jadakiss',
+      excerpt: 'BNG NappSakk connects with hip-hop legend Jadakiss in a pivotal career meeting, bridging generations and opening doors for potential collaborations.',
+      featured_image: '/images/blog/jadakiss-meeting.jpg',
+      published_at: '2023-06-20T14:30:00.000Z',
+      author_name: 'Music Contributor'
+    },
+    {
+      id: 'b3',
+      title: 'Wilkinsburg Roots: How BNG Music Stays Connected to Community',
+      slug: 'wilkinsburg-roots-community-connection',
+      excerpt: 'Even as success grows, BNG NappSakk maintains deep ties to Wilkinsburg through youth workshops, community performances, and local investment in the next generation of artists.',
+      featured_image: '/images/blog/wilkinsburg-community.jpg',
+      published_at: '2023-07-10T09:15:00.000Z', 
+      author_name: 'BNG Team'
+    }
+  ];
+
+  const displayedPosts = (blogPosts && blogPosts.length > 0) ? blogPosts : fallbackBlogPosts;
 
   const structuredData = createMusicGroupSchema({
     description: artistInfo.shortBio || artistInfo.tagline,
@@ -142,7 +194,6 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       
-      {/* Immersive Hero Section */}
       <ImmersiveHero 
         artistName={artistInfo.name}
         tagline={artistInfo.tagline}
@@ -151,7 +202,6 @@ export default function Home() {
         latestRelease={latestTrack}
       />
       
-      {/* Visual Storytelling Section */}
       <section className="visual-story-section">
         <div className="container">
           <h2 className="section-title">The <span className="highlight">Story</span></h2>
@@ -201,7 +251,6 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Artist Bio Section */}
       <section className="bio-section">
         <div className="container">
           <div className="fade-in bio-content">
@@ -218,6 +267,48 @@ export default function Home() {
                 Booking & Inquiries
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      <section className="latest-news-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Latest <span className="highlight">News</span></h2>
+            <Link href="/blog" className="view-all-link">
+              View All Posts <FaArrowRight className="arrow-icon" />
+            </Link>
+          </div>
+          
+          <div className="blog-posts-grid">
+            {displayedPosts.map(post => (
+              <article key={post.id} className="blog-card fade-in">
+                <Link href={`/blog/${post.slug}`} className="blog-card-inner">
+                  <div className="blog-image-container">
+                    <Image
+                      src={post.featured_image || '/images/blog-placeholder.jpg'}
+                      alt={post.title}
+                      width={600}
+                      height={340}
+                      className="blog-image"
+                    />
+                  </div>
+                  <div className="blog-content">
+                    <div className="blog-meta">
+                      <span className="blog-date">{formatDate(post.published_at)}</span>
+                      {post.author_name && (
+                        <span className="blog-author">By {post.author_name}</span>
+                      )}
+                    </div>
+                    <h3 className="blog-title">{post.title}</h3>
+                    <p className="blog-excerpt">{post.excerpt}</p>
+                    <span className="read-more-link">
+                      Read More <FaArrowRight className="read-more-icon" />
+                    </span>
+                  </div>
+                </Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -243,7 +334,6 @@ export default function Home() {
           color: #ff3c00;
         }
         
-        /* Visual Story Section Styles */
         .visual-story-section {
           padding: 4rem 0;
           background-color: rgba(0, 0, 0, 0.2);
@@ -295,7 +385,7 @@ export default function Home() {
         .story-media {
           position: relative;
           width: 100%;
-          padding-top: 75%; /* 4:3 aspect ratio */
+          padding-top: 75%;
         }
         
         .thumbnail-container {
@@ -343,7 +433,6 @@ export default function Home() {
           text-decoration: underline;
         }
         
-        /* Responsive styles for visual story section */
         @media (max-width: 992px) {
           .visual-story-container {
             grid-template-columns: repeat(2, 1fr);
@@ -358,7 +447,6 @@ export default function Home() {
           }
         }
         
-        /* Bio Section Styles */
         .bio-section {
           padding: 5rem 0;
           background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
@@ -413,83 +501,180 @@ export default function Home() {
           box-shadow: 0 8px 15px rgba(255, 60, 0, 0.3);
         }
         
-        /* Featured Media Section Styles */
-        .featured-media-section {
+        .latest-news-section {
           padding: 5rem 0;
-          background-color: rgba(0, 0, 0, 0.4);
+          background-color: rgba(0, 0, 0, 0.3);
+          position: relative;
+          overflow: hidden;
         }
         
-        .featured-video-container {
-          margin-bottom: 2rem;
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2.5rem;
+          flex-wrap: wrap;
+          gap: 1rem;
         }
         
-        .video-wrapper {
+        .section-header .section-title {
+          margin-bottom: 0;
+        }
+        
+        .view-all-link {
+          display: flex;
+          align-items: center;
+          color: #ff3c00;
+          font-weight: 600;
+          text-decoration: none;
+          font-size: 1.1rem;
+          transition: opacity 0.2s ease;
+          gap: 0.5rem;
+        }
+        
+        .view-all-link:hover {
+          opacity: 0.8;
+        }
+        
+        .arrow-icon {
+          font-size: 0.9rem;
+          transition: transform 0.2s ease;
+        }
+        
+        .view-all-link:hover .arrow-icon {
+          transform: translateX(4px);
+        }
+        
+        .blog-posts-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+        }
+        
+        .blog-card {
+          background-color: rgba(26, 26, 26, 0.9);
           border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-          margin-bottom: 2rem;
-          background-color: #000;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          height: 100%;
         }
         
-        .embed-responsive {
+        .blog-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .blog-card-inner {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          color: inherit;
+          text-decoration: none;
+        }
+        
+        .blog-image-container {
           position: relative;
           width: 100%;
-          padding-top: 56.25%; /* 16:9 aspect ratio */
+          padding-top: 56.25%;
           overflow: hidden;
         }
         
-        .instagram-embed {
-          padding-top: 0;
-          display: flex;
-          justify-content: center;
-          min-height: 500px;
-          background-color: #f8f9fa;
-        }
-        
-        .embed-player {
+        .blog-image {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          border: none;
+          object-fit: cover;
+          transition: transform 0.5s ease;
         }
         
-        .video-details {
-          max-width: 800px;
-          margin: 0 auto;
+        .blog-card:hover .blog-image {
+          transform: scale(1.05);
         }
         
-        .video-title {
-          font-size: 2rem;
-          margin-bottom: 1rem;
-          text-align: center;
-        }
-        
-        .video-description {
-          text-align: center;
-          font-size: 1.1rem;
-          margin-bottom: 1.5rem;
-          opacity: 0.9;
-        }
-        
-        .video-meta {
+        .blog-content {
+          padding: 1.5rem;
           display: flex;
-          justify-content: center;
-          gap: 2rem;
+          flex-direction: column;
+          flex-grow: 1;
+        }
+        
+        .blog-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.85rem;
+          color: #999;
+          margin-bottom: 0.75rem;
+        }
+        
+        .blog-date {
+          color: #ff3c00;
+        }
+        
+        .blog-title {
+          margin: 0 0 0.75rem;
+          font-size: 1.4rem;
+          line-height: 1.3;
+          font-weight: 700;
+        }
+        
+        .blog-excerpt {
+          margin: 0 0 auto;
+          font-size: 0.95rem;
+          line-height: 1.5;
+          color: #ccc;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          flex-grow: 1;
+        }
+        
+        .read-more-link {
+          display: flex;
+          align-items: center;
+          margin-top: 1.5rem;
+          color: #ff3c00;
+          font-weight: 600;
           font-size: 0.9rem;
-          opacity: 0.7;
+          gap: 0.5rem;
+        }
+        
+        .read-more-icon {
+          font-size: 0.8rem;
+          transition: transform 0.2s ease;
+        }
+        
+        .blog-card:hover .read-more-icon {
+          transform: translateX(4px);
+        }
+        
+        @media (max-width: 992px) {
+          .blog-posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
         
         @media (max-width: 768px) {
-          .video-meta {
+          .section-header {
             flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
+            align-items: flex-start;
           }
           
-          .instagram-embed {
-            min-height: 400px;
+          .blog-posts-grid {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+            margin: 0 auto;
+          }
+          
+          .blog-card {
+            margin-bottom: 1.5rem;
+          }
+          
+          .blog-title {
+            font-size: 1.25rem;
           }
         }
       `}</style>

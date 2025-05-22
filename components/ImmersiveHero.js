@@ -179,7 +179,7 @@ const ImmersiveHero = ({
         <div className="content-columns">
           <div className="left-column">
             <div className="artist-info">
-              <h1 className="artist-name">{artistName}</h1>
+              <h1 className="artist-name">{artistName} | Official </h1>
               <p className="artist-tagline">{tagline}</p>
             </div>
             

@@ -19,35 +19,41 @@ function hashData(data) {
 function processUserData(userData) {
   const processed = {};
 
-  if (userData.email) {
-    processed.em = hashData(userData.email.trim().toLowerCase());
-  }
-  
-  if (userData.phone) {
-    // Remove all non-numeric characters
-    const cleanPhone = userData.phone.replace(/\D/g, '');
-    processed.ph = hashData(cleanPhone);
-  }
-  
-  if (userData.firstName && userData.lastName) {
-    processed.fn = hashData(userData.firstName.trim().toLowerCase());
-    processed.ln = hashData(userData.lastName.trim().toLowerCase());
-  }
-  
-  if (userData.city) {
-    processed.ct = hashData(userData.city.trim().toLowerCase());
-  }
-  
-  if (userData.state) {
-    processed.st = hashData(userData.state.trim().toLowerCase());
-  }
-  
-  if (userData.zip) {
-    processed.zp = hashData(userData.zip.trim());
-  }
-  
-  if (userData.country) {
-    processed.country = hashData(userData.country.trim().toLowerCase());
+  if (!userData) return processed;
+
+  try {
+    if (userData.email) {
+      processed.em = hashData(userData.email.trim().toLowerCase());
+    }
+    
+    if (userData.phone) {
+      // Remove all non-numeric characters
+      const cleanPhone = userData.phone.replace(/\D/g, '');
+      processed.ph = hashData(cleanPhone);
+    }
+    
+    if (userData.firstName && userData.lastName) {
+      processed.fn = hashData(userData.firstName.trim().toLowerCase());
+      processed.ln = hashData(userData.lastName.trim().toLowerCase());
+    }
+    
+    if (userData.city) {
+      processed.ct = hashData(userData.city.trim().toLowerCase());
+    }
+    
+    if (userData.state) {
+      processed.st = hashData(userData.state.trim().toLowerCase());
+    }
+    
+    if (userData.zip) {
+      processed.zp = hashData(userData.zip.trim());
+    }
+    
+    if (userData.country) {
+      processed.country = hashData(userData.country.trim().toLowerCase());
+    }
+  } catch (error) {
+    console.error("Error processing user data:", error);
   }
   
   return processed;
@@ -74,12 +80,22 @@ async function sendEventToMeta(eventData) {
       }),
     });
     
-    const data = await response.json();
-    
+    // Handle network issues
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Unknown error from Meta API');
+      const errorText = await response.text();
+      let errorMessage;
+      
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error?.message || 'Unknown Facebook API error';
+      } catch (e) {
+        errorMessage = errorText || `HTTP error ${response.status}`;
+      }
+      
+      throw new Error(errorMessage);
     }
     
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error sending event to Meta Conversions API:', error);
@@ -100,7 +116,15 @@ export async function POST(request) {
     }
     
     // Parse request body
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid JSON in request body',
+      }, { status: 400 });
+    }
     
     // Extract data from request
     const { 
@@ -121,7 +145,7 @@ export async function POST(request) {
     }
     
     // Process data for the event
-    const processedUserData = userData ? processUserData(userData) : {};
+    const processedUserData = processUserData(userData);
     
     // Construct the event object
     const event = {

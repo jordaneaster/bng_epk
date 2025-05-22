@@ -6,58 +6,81 @@ import { FB_PIXEL_ID, updateConsentStatus } from '@/lib/metaPixel';
 
 export default function CookieConsent() {
   const [showConsent, setShowConsent] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
-    // Check if user has already consented
-    const hasConsented = localStorage.getItem('cookieConsent');
-    if (!hasConsented) {
+    // Mark that we're on the client
+    setIsClient(true);
+    
+    // Safely check for existing consent
+    try {
+      // Check if user has already consented
+      const hasConsented = localStorage.getItem('cookieConsent');
+      if (!hasConsented) {
+        setShowConsent(true);
+      } else if (hasConsented === 'accepted') {
+        // Enable analytics if user previously consented
+        if (GA_TRACKING_ID && window.gtag) {
+          window.gtag('consent', 'update', {
+            'analytics_storage': 'granted'
+          });
+        }
+        
+        // Enable Meta Pixel if user previously consented
+        if (FB_PIXEL_ID && window.fbq) {
+          updateConsentStatus(true);
+        }
+      }
+    } catch (e) {
+      console.warn('Error accessing localStorage for consent check:', e);
+      // Show consent banner if we can't determine consent status
       setShowConsent(true);
-    } else if (hasConsented === 'accepted') {
-      // Enable analytics if user previously consented
+    }
+  }, []);
+  
+  const acceptCookies = () => {
+    try {
+      localStorage.setItem('cookieConsent', 'accepted');
+      setShowConsent(false);
+      
+      // Enable analytics
       if (GA_TRACKING_ID && window.gtag) {
         window.gtag('consent', 'update', {
           'analytics_storage': 'granted'
         });
       }
       
-      // Enable Meta Pixel if user previously consented
+      // Enable Meta Pixel
       if (FB_PIXEL_ID && window.fbq) {
         updateConsentStatus(true);
       }
-    }
-  }, []);
-  
-  const acceptCookies = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
-    setShowConsent(false);
-    
-    // Enable analytics
-    if (GA_TRACKING_ID && window.gtag) {
-      window.gtag('consent', 'update', {
-        'analytics_storage': 'granted'
-      });
-    }
-    
-    // Enable Meta Pixel
-    if (FB_PIXEL_ID && window.fbq) {
-      updateConsentStatus(true);
+    } catch (e) {
+      console.error('Error saving consent:', e);
+      // Close banner anyway to avoid blocking the UI
+      setShowConsent(false);
     }
   };
   
   const declineCookies = () => {
-    localStorage.setItem('cookieConsent', 'declined');
-    setShowConsent(false);
-    
-    // Disable analytics
-    if (GA_TRACKING_ID && window.gtag) {
-      window.gtag('consent', 'update', {
-        'analytics_storage': 'denied'
-      });
-    }
-    
-    // Disable Meta Pixel
-    if (FB_PIXEL_ID && window.fbq) {
-      updateConsentStatus(false);
+    try {
+      localStorage.setItem('cookieConsent', 'declined');
+      setShowConsent(false);
+      
+      // Disable analytics
+      if (GA_TRACKING_ID && window.gtag) {
+        window.gtag('consent', 'update', {
+          'analytics_storage': 'denied'
+        });
+      }
+      
+      // Disable Meta Pixel
+      if (FB_PIXEL_ID && window.fbq) {
+        updateConsentStatus(false);
+      }
+    } catch (e) {
+      console.error('Error saving consent rejection:', e);
+      // Close banner anyway
+      setShowConsent(false);
     }
   };
   
@@ -66,6 +89,10 @@ export default function CookieConsent() {
     e.stopPropagation();
   };
   
+  // Don't render anything during SSR
+  if (!isClient) return null;
+  
+  // Don't show if consent has been given
   if (!showConsent) return null;
   
   return (

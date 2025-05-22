@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { GA_TRACKING_ID } from '@/lib/gtag';
+import { FB_PIXEL_ID, updateConsentStatus } from '@/lib/metaPixel';
 
 export default function CookieConsent() {
   const [showConsent, setShowConsent] = useState(false);
@@ -11,11 +12,18 @@ export default function CookieConsent() {
     const hasConsented = localStorage.getItem('cookieConsent');
     if (!hasConsented) {
       setShowConsent(true);
-    } else if (hasConsented === 'accepted' && GA_TRACKING_ID) {
+    } else if (hasConsented === 'accepted') {
       // Enable analytics if user previously consented
-      window.gtag('consent', 'update', {
-        'analytics_storage': 'granted'
-      });
+      if (GA_TRACKING_ID && window.gtag) {
+        window.gtag('consent', 'update', {
+          'analytics_storage': 'granted'
+        });
+      }
+      
+      // Enable Meta Pixel if user previously consented
+      if (FB_PIXEL_ID && window.fbq) {
+        updateConsentStatus(true);
+      }
     }
   }, []);
   
@@ -29,6 +37,11 @@ export default function CookieConsent() {
         'analytics_storage': 'granted'
       });
     }
+    
+    // Enable Meta Pixel
+    if (FB_PIXEL_ID && window.fbq) {
+      updateConsentStatus(true);
+    }
   };
   
   const declineCookies = () => {
@@ -40,6 +53,11 @@ export default function CookieConsent() {
       window.gtag('consent', 'update', {
         'analytics_storage': 'denied'
       });
+    }
+    
+    // Disable Meta Pixel
+    if (FB_PIXEL_ID && window.fbq) {
+      updateConsentStatus(false);
     }
   };
   
@@ -77,7 +95,7 @@ export default function CookieConsent() {
         gap: '1rem'
       }}>
         <p style={{ margin: 0, textAlign: 'center' }}>
-        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content. By clicking &quot;Accept All,&quot; you consent to the use of all cookies.
+        This website uses cookies to enhance your experience, analyze site usage, and provide personalized content and advertisements. By clicking &quot;Accept All,&quot; you consent to the use of all cookies including those for analytics and personalized advertising.
         </p>
         <div className="cookie-buttons" style={{
           display: 'flex',

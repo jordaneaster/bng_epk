@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { createEnhancedMetadata, createMetaDescription } from '@/lib/seo';
 import { FaCalendarAlt, FaUser, FaTags, FaShareAlt } from 'react-icons/fa';
 import CTAButton from '@/components/CTAButton';
+import ShareButtons from '@/components/ShareButtons';
 
 // Format the date in a readable way
 function formatDate(dateString) {
@@ -72,6 +73,10 @@ export default async function BlogPost({ params }) {
     .order('published_at', { ascending: false })
     .limit(3);
   
+  // Get the full URL for sharing
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.bngmusic.com';
+  const fullUrl = `${baseUrl}/blog/${slug}`;
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-4">
@@ -117,11 +122,9 @@ export default async function BlogPost({ params }) {
         
         <div className="blog-content" dangerouslySetInnerHTML={{ __html: post.content }} />
         
-        <div className="blog-share">
-          <span className="share-label"><FaShareAlt /> Share this post:</span>
-          <div className="share-buttons">
-            {/* Add social sharing buttons here */}
-          </div>
+        <div className="blog-share mt-8 p-4 border-t border-b border-gray-700">
+          <span className="share-label flex items-center mb-3"><FaShareAlt className="mr-2" /> Share this post:</span>
+          <ShareButtons title={post.title} url={fullUrl} />
         </div>
         
         {/* CTA Section */}

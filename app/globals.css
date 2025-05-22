@@ -122,3 +122,77 @@ iframe[src*="embed.music.apple.com"] {
   from { transform: translateY(-50%) translateX(0); }
   to { transform: translateY(-50%) translateX(10px); }
 }
+
+/* Add this to your existing CSS file */
+
+/* Update share button styles to work with button elements */
+
+.share-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.share-button:hover {
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
+
+.share-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.share-button.twitter {
+  background-color: #1da1f2;
+}
+
+.share-button.facebook {
+  background-color: #1877f2;
+}
+
+.share-button.instagram {
+  background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+}
+
+.share-button.tiktok {
+  background-color: #000000;
+  position: relative;
+}
+
+.share-button.tiktok::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, #25F4EE, #FE2C55);
+  z-index: -1;
+  border-radius: 50%;
+  margin: -2px;
+}
+
+.share-button.email {
+  background-color: #505050;
+}
+
+.blog-share {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.share-label {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}

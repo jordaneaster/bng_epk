@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaSpotify, FaApple, FaYoutube, FaVolumeUp, FaVolumeMute, FaArrowRight, FaLock } from 'react-icons/fa';
+import { FaSpotify, FaApple, FaYoutube, FaVolumeUp, FaVolumeMute, FaArrowRight, FaLock, FaTimes, FaHandPointRight } from 'react-icons/fa';
 import { trackClickEvent } from '../lib/gtag';
 
 const ImmersiveHero = ({ 
@@ -22,10 +22,41 @@ const ImmersiveHero = ({
   const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
   
+  // New overlay states
+  const [showOverlay, setShowOverlay] = useState(true); // Start with overlay visible
+  const overlayRef = useRef(null);
+  
   useEffect(() => {
     if (latestRelease) {
+      console.log("Latest release data:", latestRelease);
     }
   }, [latestRelease]);
+
+  // Handle click outside of overlay to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if the click is from the cookie consent banner
+      const consentBanner = document.querySelector('.cookie-consent-banner');
+      if (consentBanner && (consentBanner === event.target || consentBanner.contains(event.target))) {
+        // If the click originated from the consent banner, don't close the overlay
+        return;
+      }
+
+      if (overlayRef.current && !overlayRef.current.contains(event.target)) {
+        setShowOverlay(false);
+      }
+    };
+
+    if (showOverlay) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showOverlay]);
 
   const isValidImageUrl = (url) => {
     if (!url) return false;
@@ -129,8 +160,222 @@ const ImmersiveHero = ({
     });
   };
 
+  // Overlay styles
+  const fadeInKeyframes = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pointRight {
+      from { transform: translateX(0) translateY(-50%); }
+      to { transform: translateX(10px) translateY(-50%); }
+    }
+  `;
+
+  const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    display: showOverlay && latestRelease ? 'flex' : 'none',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999, // Very high z-index to ensure it's above everything
+    padding: '20px'
+  };
+
+  const overlayContentStyle = {
+    backgroundColor: '#121212',
+    width: isMobile ? '90%' : '500px',
+    maxWidth: '500px',
+    borderRadius: '10px',
+    padding: '30px',
+    position: 'relative',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+    animation: 'fadeIn 0.5s ease-in-out',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  };
+
+  const closeButtonStyle = {
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    background: 'none',
+    border: 'none',
+    color: '#fff',
+    fontSize: '1.5rem',
+    cursor: 'pointer'
+  };
+
+  const overlayImageStyle = {
+    width: '70%',
+    height: 'auto',
+    marginBottom: '20px',
+    borderRadius: '5px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+    objectFit: 'contain',
+    margin: '0 auto',
+    display: 'block'
+  };
+
+  const overlayButtonsContainerStyle = {
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '10px',
+    width: '100%',
+    position: 'relative',
+    marginTop: '20px',
+    padding: '0 30px'
+  };
+
+  const overlayButtonStyle = {
+    padding: '10px 15px',
+    borderRadius: '30px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    fontWeight: 'bold',
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '1rem',
+    width: isMobile ? '100%' : 'auto',
+    transition: 'transform 0.3s ease'
+  };
+
+  const pointerStyle = {
+    position: 'absolute',
+    left: '0px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    animation: 'pointRight 1s infinite alternate',
+    fontSize: '1.8rem',
+    color: '#FFF',
+    display: isMobile ? 'none' : 'block'
+  };
+
   return (
     <div className="immersive-hero">
+      {/* Add the animation styles */}
+      <style jsx global>{fadeInKeyframes}</style>
+      
+      {/* Overlay */}
+      {latestRelease && (
+        <div style={overlayStyle} id="music-overlay">
+          <div ref={overlayRef} style={overlayContentStyle}>
+            <button 
+              onClick={() => setShowOverlay(false)}
+              style={closeButtonStyle}
+              aria-label="Close"
+            >
+              <FaTimes />
+            </button>
+            
+            <h2 style={{ marginBottom: '15px', textAlign: 'center' }}>New Release!</h2>
+            <h3 style={{ marginBottom: '25px', textAlign: 'center' }}>{latestRelease.title}</h3>
+            
+            {latestRelease.imageUrl && (
+              <div style={{ width: '100%', textAlign: 'center' }}>
+                <img 
+                  src={getImageSrc()}
+                  alt={`${latestRelease.title} Album Art`}
+                  width={300}
+                  height={300}
+                  style={overlayImageStyle}
+                />
+              </div>
+            )}
+            
+            <p style={{ marginBottom: '15px', textAlign: 'center' }}>Listen now on your favorite platform!</p>
+            
+            <div style={overlayButtonsContainerStyle}>
+              <FaHandPointRight style={pointerStyle} />
+              
+              {latestRelease.spotify_link && (
+                <Link 
+                  href={latestRelease.spotify_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'spotify',
+                    track_title: latestRelease.title
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#1DB954'
+                  }}
+                >
+                  <FaSpotify /> Spotify
+                </Link>
+              )}
+              
+              {latestRelease.apple_music_link && (
+                <Link 
+                  href={latestRelease.apple_music_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'apple_music',
+                    track_title: latestRelease.title
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#FB233B'
+                  }}
+                >
+                  <FaApple /> Apple Music
+                </Link>
+              )}
+              
+              {latestRelease.youtube_link && (
+                <Link 
+                  href={latestRelease.youtube_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClickEvent('music_overlay_click', {
+                    platform: 'youtube',
+                    track_title: latestRelease.title
+                  })}
+                  style={{
+                    ...overlayButtonStyle,
+                    backgroundColor: '#FF0000'
+                  }}
+                >
+                  <FaYoutube /> YouTube
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Debug button - you can remove this in production */}
+      <button 
+        onClick={() => setShowOverlay(!showOverlay)} 
+        style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          zIndex: 10000,
+          padding: '8px',
+          background: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          border: '1px solid white',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Toggle Overlay
+      </button>
+      
       <div className="hero-background">
         {!isVideoError ? (
           <video

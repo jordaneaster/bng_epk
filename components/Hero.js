@@ -16,12 +16,17 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
   const [featuredTracks, setFeaturedTracks] = useState([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true); // Start with overlay visible
   const [overlayTrack, setOverlayTrack] = useState(null);
   const overlayRef = useRef(null);
 
   // The current track to display
   const currentTrack = featuredTracks[currentTrackIndex] || null;
+
+  // Add debugging for overlay status
+  useEffect(() => {
+    console.log("Overlay status:", { showOverlay, hasOverlayTrack: !!overlayTrack });
+  }, [showOverlay, overlayTrack]);
 
   // Fetch all featured tracks from the database
   useEffect(() => {
@@ -39,6 +44,8 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
           console.error('Error fetching featured tracks:', error);
           return;
         }
+        
+        console.log("Fetched featured tracks:", data);
         
         if (data && data.length > 0) {
           // Process each track to get its album artwork
@@ -79,8 +86,14 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
           // Check if any track has overlay set to true
           const overlayTrack = tracksWithArtwork.find(track => track.overlay === true);
           if (overlayTrack) {
+            console.log('Found overlay track:', overlayTrack.title);
             setOverlayTrack(overlayTrack);
-            setShowOverlay(true);
+            setShowOverlay(true); // Ensure overlay is visible
+          } else {
+            // If no overlay track is found, use the first track as overlay
+            console.log('No overlay track found, using first track');
+            setOverlayTrack(tracksWithArtwork[0]);
+            setShowOverlay(true); // Ensure overlay is visible
           }
         }
       } catch (error) {
@@ -91,6 +104,12 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
     };
     
     fetchFeaturedTracks();
+
+    // Return a cleanup function
+    return () => {
+      // This will run when component unmounts
+      console.log("Hero component cleanup");
+    };
   }, []);
 
   // Handle click outside of overlay to close it
@@ -288,6 +307,14 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
     marginBottom: '0.5rem'
   };
 
+  // Define animations for the overlay to ensure it's visible
+  const fadeInKeyframes = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+
   const overlayStyle = {
     position: 'fixed',
     top: 0,
@@ -298,7 +325,7 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
     display: showOverlay ? 'flex' : 'none',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,
+    zIndex: 9999, // Very high z-index to ensure it's above everything
     padding: '20px'
   };
 
@@ -378,9 +405,32 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Add the animation styles */}
+      <style jsx global>{fadeInKeyframes}</style>
+      
+      {/* Debug button - you can remove this in production */}
+      <button 
+        onClick={() => setShowOverlay(!showOverlay)} 
+        style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          zIndex: 10000,
+          padding: '8px',
+          background: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          border: '1px solid white',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Toggle Overlay
+      </button>
+      
+      {/* Overlay - Show as long as there's an overlayTrack */}
       {overlayTrack && (
-        <div style={overlayStyle}>
+        <div style={overlayStyle} id="music-overlay">
           <div ref={overlayRef} style={overlayContentStyle}>
             <button 
               onClick={() => setShowOverlay(false)}

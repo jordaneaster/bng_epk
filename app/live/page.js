@@ -154,7 +154,6 @@ export default async function LiveEvents() {
                         className="relative inline-flex items-center px-8 py-3 overflow-hidden text-lg font-medium text-white bg-[var(--color-primary)] rounded-lg group"
                       >
                         <span className="absolute left-0 block w-full h-0 transition-all bg-opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease bg-[var(--color-primary)] hover:bg-opacity-80"></span>
-                        <span className="relative">Get Tickets</span>
                       </a>
                     )}
                   </div>

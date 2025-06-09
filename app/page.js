@@ -232,7 +232,7 @@ export default function Home() {
                 </p>
                 <p className="location">{nextShow.city}, {nextShow.state}</p>
                 <Link href="/live" className="promo-cta-btn">
-                  View Details & Tickets <FaArrowRight />
+                  View Details <FaArrowRight />
                 </Link>
               </div>
             </div>

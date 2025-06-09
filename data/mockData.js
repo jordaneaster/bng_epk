@@ -150,3 +150,21 @@ export const socialLinks = {
 // Press Kit URL (Update this with the actual path or URL)
 // Place your PDF in the /public folder and use the relative path like below
 export const pressKitUrl = '/BNG_Nappsakk_Press_Kit.pdf'; // Example path, replace with your actual filename
+
+// Add this new data for live shows
+export const liveShows = [
+  {
+    id: 1,
+    title: "BNG Live Performance",
+    venue: "The Music Hall",
+    date: "2023-12-15T20:00:00",
+    time: "8:00 PM",
+    city: "Atlanta",
+    state: "GA",
+    description: "Join us for an unforgettable night of music and entertainment featuring BNG Music!",
+    ticketLink: "https://ticketmaster.com/event/123456",
+    price: "25.00",
+    soldOut: false,
+    flyerImage: "/images/shows/atlanta-flyer.jpg"
+  }
+];

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { createMusicGroupSchema } from '../lib/seo';
 import { FaSpotify, FaApple, FaYoutube, FaArrowRight } from 'react-icons/fa';
+import { supabase } from '../lib/supabaseClient'; // Import Supabase client
 
 // Since this is now a Client Component, we need to fetch data client-side
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
   const [videoData, setVideoData] = useState(null);
   const [storyVideos, setStoryVideos] = useState(null);
   const [blogPosts, setBlogPosts] = useState(null);
+  const [nextShow, setNextShow] = useState(null); // State for the next show
   const [isLoading, setIsLoading] = useState(true);
 
   // Format date for blog posts
@@ -37,7 +39,7 @@ export default function Home() {
         
         // Fetch video data for the featured video section (3 videos)
         const videoResponse = await fetch('/api/videos?limit=3');
-        const videoData = await videoResponse.json();
+        const videoDataResult = await videoResponse.json(); // Renamed to avoid conflict
         
         // Fetch more videos for the story section (5 videos)
         const storyResponse = await fetch('/api/videos?limit=10');
@@ -54,9 +56,22 @@ export default function Home() {
           blogData = { data: [] };
           console.warn("Blog API not available yet");
         }
+
+        // Fetch next upcoming show
+        const { data: liveEventsData, error: liveEventsError } = await supabase
+          .from('live_events')
+          .select('*')
+          .order('date', { ascending: true })
+          .limit(1);
+
+        if (liveEventsError) {
+          console.error('Error fetching next show:', liveEventsError);
+        } else if (liveEventsData && liveEventsData.length > 0) {
+          setNextShow(liveEventsData[0]);
+        }
         
         setMusicTracks(musicData.data || []);
-        setVideoData(videoData.data || []);
+        setVideoData(videoDataResult.data || []); // Use renamed variable
         setStoryVideos(storyData.data || []);
         setBlogPosts(blogData.data || []);
       } catch (error) {
@@ -193,6 +208,37 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+
+      {/* Next Show Promo Section - MOVED TO TOP */}
+      {nextShow && (
+        <section className="next-show-promo-section">
+          <div className="container">
+            <div className="promo-card">
+              <div className="promo-image-wrapper">
+                <Image
+                  src={nextShow.flyer_image || '/images/flyer-placeholder.jpg'}
+                  alt={`Flyer for ${nextShow.title} at ${nextShow.venue}`}
+                  width={300}
+                  height={400}
+                  style={{ objectFit: 'cover' }} 
+                />
+              </div>
+              <div className="promo-details">
+                <h4>Next Big Show!</h4>
+                <h3>{nextShow.title}</h3>
+                <p className="venue">{nextShow.venue}</p>
+                <p className="date-time">
+                  {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} - {nextShow.time}
+                </p>
+                <p className="location">{nextShow.city}, {nextShow.state}</p>
+                <Link href="/live" className="promo-cta-btn">
+                  View Details & Tickets <FaArrowRight />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
       
       <ImmersiveHero 
         artistName={artistInfo.name}
@@ -331,8 +377,101 @@ export default function Home() {
         }
         
         .highlight {
-          color: #ff3c00;
+          color: var(--color-primary); /* Using CSS variable for highlight */
         }
+
+        /* Next Show Promo Section Styles */
+        .next-show-promo-section {
+          padding: 3rem 0;
+          background-color: #181818; /* Dark background for the section */
+        }
+        .promo-card {
+          display: flex;
+          background-color: var(--color-card-bg); /* Using card background color from variables */
+          border-radius: 8px;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+          overflow: hidden;
+          max-width: 800px; /* Adjusted max-width */
+          margin: 0 auto;
+          border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+        }
+        .promo-image-wrapper {
+          flex: 0 0 40%;
+          min-width: 250px; /* Minimum width for image on larger screens */
+        }
+        .promo-image-wrapper img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .promo-details {
+          padding: 1.5rem 2rem;
+          flex-grow: 1;
+          color: var(--color-text);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        .promo-details h4 {
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          color: var(--color-primary);
+          margin-bottom: 0.25rem;
+          font-weight: 700;
+        }
+        .promo-details h3 {
+          font-size: 1.8rem;
+          margin-bottom: 0.75rem;
+          color: var(--color-text); 
+          font-weight: 700;
+          font-family: var(--font-heading);
+        }
+        .promo-details p {
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+          color: #ccc;
+        }
+        .promo-details .venue {
+          font-weight: 600;
+          color: var(--color-text);
+        }
+        .promo-cta-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 1rem;
+          padding: 0.6rem 1.2rem;
+          background-color: var(--color-primary);
+          color: var(--color-background); /* Text color for button */
+          border-radius: 5px;
+          text-decoration: none;
+          font-weight: 600;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          border: 1px solid transparent;
+        }
+        .promo-cta-btn:hover {
+          background-color: color-mix(in srgb, var(--color-primary) 85%, black);
+          transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+          .promo-card {
+            flex-direction: column;
+          }
+          .promo-image-wrapper {
+            width: 100%;
+            max-height: 350px; /* Adjusted max height for mobile flyer */
+          }
+          .promo-details {
+            padding: 1.5rem;
+            text-align: center;
+          }
+          .promo-details h3 {
+            font-size: 1.5rem;
+          }
+        }
+        /* End Next Show Promo Section Styles */
         
         .visual-story-section {
           padding: 4rem 0;
@@ -476,7 +615,7 @@ export default function Home() {
           font-weight: bold;
           float: left;
           margin-right: 0.5rem;
-          color: #ff3c00;
+          color: var(--color-primary); /* Using CSS variable */
         }
         
         .bio-cta {
@@ -484,8 +623,8 @@ export default function Home() {
         }
         
         .btn-primary {
-          background: #ff3c00;
-          color: white;
+          background: var(--color-primary); /* Using CSS variable */
+          color: var(--color-background); /* Ensure contrast */
           border: none;
           padding: 0.75rem 2rem;
           font-weight: 600;
@@ -498,7 +637,8 @@ export default function Home() {
         
         .btn-primary:hover {
           transform: translateY(-3px);
-          box-shadow: 0 8px 15px rgba(255, 60, 0, 0.3);
+          box-shadow: 0 8px 15px color-mix(in srgb, var(--color-primary) 30%, transparent); /* Shadow with primary color */
+          background-color: color-mix(in srgb, var(--color-primary) 85%, black); /* Darker shade on hover */
         }
         
         .latest-news-section {
@@ -524,7 +664,7 @@ export default function Home() {
         .view-all-link {
           display: flex;
           align-items: center;
-          color: #ff3c00;
+          color: var(--color-primary); /* Using CSS variable */
           font-weight: 600;
           text-decoration: none;
           font-size: 1.1rem;
@@ -610,7 +750,7 @@ export default function Home() {
         }
         
         .blog-date {
-          color: #ff3c00;
+          color: var(--color-primary); /* Using CSS variable */
         }
         
         .blog-title {
@@ -636,7 +776,7 @@ export default function Home() {
           display: flex;
           align-items: center;
           margin-top: 1.5rem;
-          color: #ff3c00;
+          color: var(--color-primary); /* Using CSS variable */
           font-weight: 600;
           font-size: 0.9rem;
           gap: 0.5rem;

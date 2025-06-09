@@ -10,7 +10,7 @@ const navLinks = [
   { href: '/music', label: 'Music' },
   // { href: '/videos', label: 'Videos' },
   { href: '/photos', label: 'Photos' },
-  { href: '/tour', label: 'Tour' },
+  { href: '/live', label: 'BNG Live' },
   { href: '/epk', label: 'EPK' },  // Add EPK link here
   // { href: '/press', label: 'Press' },
   { href: '/contact', label: 'Contact' },

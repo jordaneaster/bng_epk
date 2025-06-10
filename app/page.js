@@ -224,7 +224,7 @@ export default function Home() {
                 />
               </div>
               <div className="promo-details">
-                <h4>Live Event!</h4>
+                <h4>Live Show!</h4>
                 <h3>{nextShow.title}</h3>
                 <p className="venue">{nextShow.venue}</p>
                 <p className="date-time">

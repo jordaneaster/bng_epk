@@ -92,16 +92,16 @@ export default async function Videos() {
               return null;
             }
 
-            // Use Card component for consistent styling
+            // Use Card component for consistent styling without Link wrapping
             return (
               <div key={video.id} className="fade-in mb-4" style={{ animationDelay: `${index * 0.1}s` }}>
-                 <Card title={video.title || ''}> {/* Use video.title if it exists */}
-                   <VideoEmbed
-                     platform={platform}
-                     videoId={preparedVideoId}
-                     title={video.title || `${platform} Video`} // Use a title field if available
-                   />
-                 </Card>
+                <Card title={video.title || ''}>
+                  <VideoEmbed
+                    platform={platform}
+                    videoId={preparedVideoId}
+                    title={video.title || `${platform} Video`}
+                  />
+                </Card>
               </div>
             );
           })}

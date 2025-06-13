@@ -18,6 +18,8 @@ export default function Home() {
   const [storyVideos, setStoryVideos] = useState(null);
   const [blogPosts, setBlogPosts] = useState(null);
   const [nextShow, setNextShow] = useState(null); // State for the next show
+  const [premiereVideo, setPremiereVideo] = useState(null); // New state for premiere video
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
 
   // Format date for blog posts
@@ -70,6 +72,20 @@ export default function Home() {
           setNextShow(liveEventsData[0]);
         }
         
+        // Fetch premiere video - assuming there's a "premiere" field to identify it
+        const { data: premiereData, error: premiereError } = await supabase
+          .from('bng_videos')
+          .select('*')
+          .eq('is_premiere', true)
+          .order('premiere_date', { ascending: true })
+          .limit(1);
+          
+        if (premiereError) {
+          console.error('Error fetching premiere video:', premiereError);
+        } else if (premiereData && premiereData.length > 0) {
+          setPremiereVideo(premiereData[0]);
+        }
+        
         setMusicTracks(musicData.data || []);
         setVideoData(videoDataResult.data || []); // Use renamed variable
         setStoryVideos(storyData.data || []);
@@ -83,6 +99,43 @@ export default function Home() {
     
     fetchData();
   }, []);
+
+  // Set up a timer to update current time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    // Clean up the interval on component unmount
+    return () => clearInterval(timer);
+  }, []);
+  
+  // Function to format countdown time
+  const formatCountdown = (premiereDate) => {
+    if (!premiereDate) return null;
+    
+    // If we're past the premiere time
+    if (currentTime >= premiereDate) {
+      return null; // We'll handle this separately in the UI
+    }
+    
+    // Calculate time difference
+    const diff = premiereDate - currentTime;
+    
+    // Convert to hours, minutes, seconds
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Return structured countdown data
+    return { hours, minutes, seconds };
+  };
+  
+  // Check if premiere is live
+  const isPremiereLive = (premiereDate) => {
+    if (!premiereDate) return false;
+    return currentTime >= premiereDate;
+  };
 
   // Process music data for Hero component
   const latestTrack = musicTracks && musicTracks.length > 0 ? {
@@ -209,36 +262,101 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Next Show Promo Section - MOVED TO TOP */}
-      {nextShow && (
-        <section className="next-show-promo-section">
-          <div className="container">
-            <div className="promo-card">
-              <div className="promo-image-wrapper">
-                <Image
-                  src={nextShow.flyer_image || '/images/flyer-placeholder.jpg'}
-                  alt={`Flyer for ${nextShow.title} at ${nextShow.venue}`}
-                  width={300}
-                  height={400}
-                  style={{ objectFit: 'cover' }} 
-                />
+      {/* Next Show Promo Section - With Video Premiere */}
+      <section className="promo-section">
+        <div className="container">
+          <div className="promo-grid">
+            {premiereVideo && (
+              <div className="promo-card video-premiere">
+                <div className="premiere-video-container">
+                  <VideoEmbed 
+                    videoId={premiereVideo.video_id} 
+                    platform={premiereVideo.medium || 'youtube'}
+                    title={premiereVideo.title}
+                  />
+                </div>
+                <div className="promo-details">
+                  <h4>Video Premiere!</h4>
+                  <h3>{premiereVideo.title}</h3>
+                  
+                  {/* Dynamic premiere time display */}
+                  <div className={`premiere-time-container ${isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? 'live' : ''}`}>
+                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? (
+                      <div className="live-now">
+                        <span className="pulse-dot"></span> Streaming Now!
+                      </div>
+                    ) : (
+                      <>
+                        <p className="premiere-label">Premiering in</p>
+                        <div className="countdown-timer">
+                          {(() => {
+                            const countdown = formatCountdown(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null);
+                            if (!countdown) return null;
+                            
+                            return (
+                              <>
+                                <div className="time-unit">
+                                  <span className="time-value">{countdown.hours}</span>
+                                  <span className="time-label">hours</span>
+                                </div>
+                                <div className="time-separator">:</div>
+                                <div className="time-unit">
+                                  <span className="time-value">{countdown.minutes.toString().padStart(2, '0')}</span>
+                                  <span className="time-label">min</span>
+                                </div>
+                                <div className="time-separator">:</div>
+                                <div className="time-unit">
+                                  <span className="time-value">{countdown.seconds.toString().padStart(2, '0')}</span>
+                                  <span className="time-label">sec</span>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  
+                  <a href={`https://www.youtube.com/watch?v=${premiereVideo.video_id}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     className="promo-cta-btn">
+                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) 
+                      ? 'Watch Video' 
+                      : 'Watch Premiere'} <FaArrowRight />
+                  </a>
+                </div>
               </div>
-              <div className="promo-details">
-                <h4>Live Show!</h4>
-                <h3>{nextShow.title}</h3>
-                <p className="venue">{nextShow.venue}</p>
-                <p className="date-time">
-                  {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} - {nextShow.time}
-                </p>
-                <p className="location">{nextShow.city}, {nextShow.state}</p>
-                <Link href="/live" className="promo-cta-btn">
-                  View Details <FaArrowRight />
-                </Link>
+            )}
+            
+            {nextShow && (
+              <div className="promo-card show-promo">
+                <div className="promo-image-wrapper">
+                  <Image
+                    src={nextShow.flyer_image || '/images/flyer-placeholder.jpg'}
+                    alt={`Flyer for ${nextShow.title} at ${nextShow.venue}`}
+                    width={300}
+                    height={400}
+                    style={{ objectFit: 'cover' }} 
+                  />
+                </div>
+                <div className="promo-details">
+                  <h4>Live Show!</h4>
+                  <h3>{nextShow.title}</h3>
+                  <p className="venue">{nextShow.venue}</p>
+                  <p className="date-time">
+                    {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} - {nextShow.time}
+                  </p>
+                  <p className="location">{nextShow.city}, {nextShow.state}</p>
+                  <Link href="/live" className="promo-cta-btn">
+                    View Details <FaArrowRight />
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
       
       <ImmersiveHero 
         artistName={artistInfo.name}
@@ -380,31 +498,59 @@ export default function Home() {
           color: var(--color-primary); /* Using CSS variable for highlight */
         }
 
-        /* Next Show Promo Section Styles */
-        .next-show-promo-section {
+        /* Promo Section Styles */
+        .promo-section {
           padding: 3rem 0;
           background-color: #181818; /* Dark background for the section */
         }
+        
+        .promo-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+          align-items: stretch;
+        }
+        
         .promo-card {
           display: flex;
-          background-color: var(--color-card-bg); /* Using card background color from variables */
+          flex-direction: column;
+          background-color: var(--color-card-bg);
           border-radius: 8px;
           box-shadow: 0 8px 25px rgba(0,0,0,0.5);
           overflow: hidden;
-          max-width: 800px; /* Adjusted max-width */
-          margin: 0 auto;
           border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+          height: 100%;
         }
+        
+        .show-promo {
+          display: flex;
+          flex-direction: row;
+        }
+        
+        .video-premiere {
+          display: flex;
+          flex-direction: column;
+        }
+        
         .promo-image-wrapper {
           flex: 0 0 40%;
-          min-width: 250px; /* Minimum width for image on larger screens */
+          min-width: 200px;
+          max-width: 300px;
         }
+        
         .promo-image-wrapper img {
           display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
+        
+        .premiere-video-container {
+          width: 100%;
+          border-radius: 8px 8px 0 0;
+          overflow: hidden;
+        }
+        
         .promo-details {
           padding: 1.5rem 2rem;
           flex-grow: 1;
@@ -413,6 +559,7 @@ export default function Home() {
           flex-direction: column;
           justify-content: center;
         }
+        
         .promo-details h4 {
           font-size: 0.9rem;
           text-transform: uppercase;
@@ -420,6 +567,7 @@ export default function Home() {
           margin-bottom: 0.25rem;
           font-weight: 700;
         }
+        
         .promo-details h3 {
           font-size: 1.8rem;
           margin-bottom: 0.75rem;
@@ -427,15 +575,18 @@ export default function Home() {
           font-weight: 700;
           font-family: var(--font-heading);
         }
+        
         .promo-details p {
           margin-bottom: 0.5rem;
           font-size: 1rem;
           color: #ccc;
         }
-        .promo-details .venue {
+        
+        .promo-details .venue, .premiere-time {
           font-weight: 600;
           color: var(--color-text);
         }
+        
         .promo-cta-btn {
           display: inline-flex;
           align-items: center;
@@ -443,35 +594,47 @@ export default function Home() {
           margin-top: 1rem;
           padding: 0.6rem 1.2rem;
           background-color: var(--color-primary);
-          color: var(--color-background); /* Text color for button */
+          color: var(--color-background);
           border-radius: 5px;
           text-decoration: none;
           font-weight: 600;
           transition: background-color 0.3s ease, transform 0.2s ease;
           border: 1px solid transparent;
         }
+        
         .promo-cta-btn:hover {
           background-color: color-mix(in srgb, var(--color-primary) 85%, black);
           transform: translateY(-2px);
         }
 
-        @media (max-width: 768px) {
-          .promo-card {
+        @media (max-width: 992px) {
+          .show-promo {
             flex-direction: column;
           }
+          
           .promo-image-wrapper {
-            width: 100%;
-            max-height: 350px; /* Adjusted max height for mobile flyer */
+            max-width: 100%;
+            max-height: 350px;
           }
+        }
+
+        @media (max-width: 768px) {
+          .promo-grid {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+            margin: 0 auto;
+          }
+          
           .promo-details {
             padding: 1.5rem;
             text-align: center;
           }
+          
           .promo-details h3 {
             font-size: 1.5rem;
           }
         }
-        /* End Next Show Promo Section Styles */
+        /* End Promo Section Styles */
         
         .visual-story-section {
           padding: 4rem 0;
@@ -791,31 +954,104 @@ export default function Home() {
           transform: translateX(4px);
         }
         
-        @media (max-width: 992px) {
-          .blog-posts-grid {
-            grid-template-columns: repeat(2, 1fr);
+        /* Additional styles for premiere countdown */
+        .premiere-time-container {
+          margin: 1rem 0;
+          padding: 0.75rem;
+          border-radius: 6px;
+          background-color: rgba(0, 0, 0, 0.2);
+          text-align: center;
+        }
+        
+        .premiere-label {
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-bottom: 0.5rem;
+          color: #ccc;
+        }
+        
+        .countdown-timer {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.25rem;
+          font-family: var(--font-mono, monospace);
+        }
+        
+        .time-unit {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .time-value {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: var(--color-text);
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 4px;
+          padding: 0.25rem 0.5rem;
+          min-width: 2.5rem;
+          display: inline-block;
+        }
+        
+        .time-label {
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          color: #999;
+          margin-top: 0.25rem;
+        }
+        
+        .time-separator {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin: 0 0.25rem;
+          align-self: flex-start;
+          padding-top: 0.25rem;
+        }
+        
+        .live-now {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: var(--color-primary);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .pulse-dot {
+          width: 10px;
+          height: 10px;
+          background-color: var(--color-primary);
+          border-radius: 50%;
+          display: inline-block;
+          animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+          0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 60, 0, 0.7);
+          }
+          
+          70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 6px rgba(255, 60, 0, 0);
+          }
+          
+          100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 60, 0, 0);
           }
         }
         
-        @media (max-width: 768px) {
-          .section-header {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          
-          .blog-posts-grid {
-            grid-template-columns: 1fr;
-            max-width: 500px;
-            margin: 0 auto;
-          }
-          
-          .blog-card {
-            margin-bottom: 1.5rem;
-          }
-          
-          .blog-title {
-            font-size: 1.25rem;
-          }
+        .premiere-time-container.live {
+          background-color: rgba(255, 60, 0, 0.1);
+          border: 1px solid rgba(255, 60, 0, 0.3);
         }
       `}</style>
     </>

@@ -847,25 +847,26 @@ export default function Home() {
         .view-all-link:hover .arrow-icon {
           transform: translateX(4px);
         }
-        
-        .blog-posts-grid {
+          .blog-posts-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.5rem;
         }
         
         .blog-card {
-          background-color: rgba(26, 26, 26, 0.9);
+          background-color: #111;
           border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
           height: 100%;
+          display: flex;
+          flex-direction: column;
         }
         
         .blog-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
         
         .blog-card-inner {
@@ -879,7 +880,7 @@ export default function Home() {
         .blog-image-container {
           position: relative;
           width: 100%;
-          padding-top: 56.25%;
+          padding-top: 75%;
           overflow: hidden;
         }
         
@@ -898,35 +899,40 @@ export default function Home() {
         }
         
         .blog-content {
-          padding: 1.5rem;
+          padding: 1rem;
           display: flex;
           flex-direction: column;
           flex-grow: 1;
+          background: #181818;
         }
         
         .blog-meta {
           display: flex;
           justify-content: space-between;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           color: #999;
-          margin-bottom: 0.75rem;
+          margin-bottom: 0.5rem;
         }
         
         .blog-date {
-          color: var(--color-primary); /* Using CSS variable */
+          color: var(--color-primary);
         }
         
         .blog-title {
-          margin: 0 0 0.75rem;
-          font-size: 1.4rem;
+          margin: 0 0 0.5rem;
+          font-size: 1.2rem;
           line-height: 1.3;
-          font-weight: 700;
+          font-weight: 600;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         
         .blog-excerpt {
           margin: 0 0 auto;
-          font-size: 0.95rem;
-          line-height: 1.5;
+          font-size: 0.9rem;
+          line-height: 1.4;
           color: #ccc;
           display: -webkit-box;
           -webkit-line-clamp: 3;
@@ -936,22 +942,72 @@ export default function Home() {
         }
         
         .read-more-link {
-          display: flex;
-          align-items: center;
-          margin-top: 1.5rem;
-          color: var(--color-primary); /* Using CSS variable */
-          font-weight: 600;
+          display: inline-block;
+          margin-top: 1rem;
+          color: var(--color-primary);
+          font-weight: 500;
+          text-decoration: none;
           font-size: 0.9rem;
-          gap: 0.5rem;
+          transition: color 0.2s ease;
+        }
+        
+        .read-more-link:hover {
+          color: #ff6833;
+          text-decoration: underline;
         }
         
         .read-more-icon {
           font-size: 0.8rem;
           transition: transform 0.2s ease;
         }
-        
-        .blog-card:hover .read-more-icon {
+          .blog-card:hover .read-more-icon {
           transform: translateX(4px);
+        }
+        
+        /* Mobile responsive styles for blog section */
+        @media (max-width: 992px) {
+          .blog-posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .blog-posts-grid {
+            grid-template-columns: 1fr;
+            max-width: 500px;
+            margin: 0 auto;
+          }
+          
+          .blog-content {
+            padding: 1.5rem;
+            text-align: center;
+          }
+          
+          .blog-title {
+            font-size: 1.1rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+          }
+          
+          .blog-excerpt {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            text-align: left;
+          }
+          
+          .blog-meta {
+            font-size: 0.75rem;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-align: center;
+          }
+          
+          .read-more-link {
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+          }
         }
         
         /* Additional styles for premiere countdown */

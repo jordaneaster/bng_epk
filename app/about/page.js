@@ -17,10 +17,9 @@ const About = () => {
           <div className="hero-text">
             <h1 className="artist-name">BNG NappSakk</h1>
             <p className="artist-tagline">Hip-Hop / Rap • Pittsburgh, PA</p>
-            <p className="label">BNG Music Entertainment</p>
-            <p className="bio-line">
-              "BNG NappSakk is more than just an artist — he's a voice for the trenches, 
-              putting Pittsburgh on the map with real bars and real presence."
+            <p className="label">BNG Music Entertainment</p>            <p className="bio-line">
+              &ldquo;BNG NappSakk is more than just an artist — he&rsquo;s a voice for the trenches, 
+              putting Pittsburgh on the map with real bars and real presence.&rdquo;
             </p>
           </div>
         </div>
@@ -65,7 +64,7 @@ const About = () => {
             BNG NappSakk is a rising hip-hop artist from Pittsburgh, Pennsylvania, who has been making waves in the rap scene with his authentic street narratives and powerful delivery. Representing BNG Music Entertainment, NappSakk brings a unique blend of lyrical prowess and raw energy that resonates with listeners who appreciate genuine storytelling in hip-hop.
           </p>
           <p>
-            His music is characterized by vivid storytelling that paints pictures of street life, personal struggles, and triumphs. NappSakk's ability to weave complex narratives with hard-hitting beats has earned him recognition in the underground hip-hop community and beyond. His recent collaborations and performances have solidified his position as an artist to watch in the coming years.
+            His music is characterized by vivid storytelling that paints pictures of street life, personal struggles, and triumphs. NappSakk&rsquo;s ability to weave complex narratives with hard-hitting beats has earned him recognition in the underground hip-hop community and beyond. His recent collaborations and performances have solidified his position as an artist to watch in the coming years.
           </p>
           <p>
             With an upcoming album hosted by legendary rapper Jadakiss, BNG NappSakk is poised to take his career to the next level. His dedication to authentic expression and unwavering commitment to his craft continues to set him apart in a crowded field of emerging artists.
@@ -96,7 +95,7 @@ const About = () => {
             ></iframe>
           </div>
           <div className="video-info">
-            <h3>"Burn It Down" featuring Heemi</h3>
+            <h3>&ldquo;Burn It Down&rdquo; featuring Heemi</h3>
             <p>Shot by CaseFilms</p>
           </div>
         </div>      </section>
@@ -113,9 +112,8 @@ const About = () => {
             </div>
             <div className="event-details">
               <h3>Streets Most Wanted Tour</h3>
-              <p className="event-location">Wheeling, WV</p>
-              <p className="event-description">
-                Don't miss BNG NappSakk's explosive performance on the Streets Most Wanted Tour
+              <p className="event-location">Wheeling, WV</p>              <p className="event-description">
+                Don&rsquo;t miss BNG NappSakk&rsquo;s explosive performance on the Streets Most Wanted Tour
               </p>
             </div>
           </div>

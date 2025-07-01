@@ -60,9 +60,11 @@ export default function Home() {
         }
 
         // Fetch next upcoming show
+        const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
         const { data: liveEventsData, error: liveEventsError } = await supabase
           .from('live_events')
           .select('*')
+          .gte('date', currentDate) // Only get events on or after today
           .order('date', { ascending: true })
           .limit(1);
 
@@ -334,22 +336,28 @@ export default function Home() {
                 <div className="promo-image-wrapper">
                   <Image
                     src={nextShow.flyer_image || '/images/flyer-placeholder.jpg'}
-                    alt={`Flyer for ${nextShow.title} at ${nextShow.venue}`}
+                    alt={`BNG NappSakk performing at ${nextShow.venue}`}
                     width={300}
                     height={400}
                     style={{ objectFit: 'cover' }} 
                   />
                 </div>
                 <div className="promo-details">
-                  <h4>Live Show!</h4>
+                  <h4>BNG NappSakk Live!</h4>
                   <h3>{nextShow.title}</h3>
+                  <p className="artist-performing">
+                    <strong>BNG NappSakk</strong> brings the Wilkinsburg sound to {nextShow.city}
+                  </p>
                   <p className="venue">{nextShow.venue}</p>
                   <p className="date-time">
                     {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} - {nextShow.time}
                   </p>
                   <p className="location">{nextShow.city}, {nextShow.state}</p>
+                  {nextShow.description && (
+                    <p className="show-description">{nextShow.description}</p>
+                  )}
                   <Link href="/live" className="promo-cta-btn">
-                    View Details <FaArrowRight />
+                    Get Tickets & Details <FaArrowRight />
                   </Link>
                 </div>
               </div>
@@ -585,6 +593,20 @@ export default function Home() {
         .promo-details .venue, .premiere-time {
           font-weight: 600;
           color: var(--color-text);
+        }
+        
+        .promo-details .artist-performing {
+          font-size: 1rem;
+          color: var(--color-primary);
+          margin-bottom: 0.75rem;
+          font-style: italic;
+        }
+        
+        .promo-details .show-description {
+          font-size: 0.9rem;
+          color: #ddd;
+          margin-bottom: 1rem;
+          line-height: 1.4;
         }
         
         .promo-cta-btn {

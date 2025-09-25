@@ -5,7 +5,7 @@ import VideoEmbed from '../components/VideoEmbed';
 import Link from 'next/link';
 import Image from 'next/image';
 import { artistInfo } from '../data/mockData';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Script from 'next/script';
 import { createMusicGroupSchema } from '../lib/seo';
 import { FaSpotify, FaApple, FaYoutube, FaArrowRight } from 'react-icons/fa';
@@ -140,13 +140,15 @@ export default function Home() {
   };
 
   // Process music data for Hero component
-  const latestTrack = musicTracks && musicTracks.length > 0 ? {
-    title: musicTracks[0].title,
-    spotify_link: musicTracks[0].spotify_link,
-    apple_music_link: musicTracks[0].apple_music_link,
-    youtube_link: musicTracks[0].youtube_link,
-    imageUrl: musicTracks[0].image_url || '/images/album-cover.jpg'
-  } : null;
+  const latestTrack = useMemo(() => {
+    return musicTracks && musicTracks.length > 0 ? {
+      title: musicTracks[0].title,
+      spotify_link: musicTracks[0].spotify_link,
+      apple_music_link: musicTracks[0].apple_music_link,
+      youtube_link: musicTracks[0].youtube_link,
+      imageUrl: musicTracks[0].image_url || '/images/album-cover.jpg'
+    } : null;
+  }, [musicTracks]);
 
   // Process featured video
   const featuredVideo = videoData && videoData.length > 0 ? {

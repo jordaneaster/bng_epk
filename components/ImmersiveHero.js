@@ -22,12 +22,6 @@ const ImmersiveHero = ({
   const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
   
-  useEffect(() => {
-    if (latestRelease) {
-      console.log("Latest release data:", latestRelease);
-    }
-  }, [latestRelease]);
-
   const isValidImageUrl = (url) => {
     if (!url) return false;
     

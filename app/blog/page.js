@@ -29,17 +29,19 @@ export default async function Blog() {
     .order('published_at', { ascending: false });
   
   if (error) {
-    console.error('Error fetching blog posts:', error);
   }
   
   // If no posts or error, show a message
   if (!posts || posts.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Blog & News</h1>
-        <div className="text-center py-12">
-          <h2 className="text-2xl mb-4">Coming Soon</h2>
-          <p className="text-gray-400">
+        <div className="blog-page-header">
+          <h1>Blog & News</h1>
+          <p>Stay updated with the latest music releases, performances, and stories from BNG Music Entertainment</p>
+        </div>
+        <div className="text-center py-20">
+          <h2 className="text-3xl mb-6 font-bold">Coming Soon</h2>
+          <p className="text-lg" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
             We&apos;re working on some exciting content. Check back soon for updates, music news, and stories from BNG Music Entertainment.
           </p>
         </div>
@@ -49,15 +51,18 @@ export default async function Blog() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Blog & News</h1>
+      <div className="blog-page-header">
+        <h1>Blog & News</h1>
+        <p>Stay updated with the latest music releases, performances, and stories from BNG Music Entertainment</p>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post) => (
           <div key={post.id} className="blog-card fade-in">
             <Link href={`/blog/${post.slug}`}>
               <div className="blog-image-container">
                 <Image
-                  src={post.featured_image || '/images/blog-placeholder.jpg'}
+                  src={(post.featured_image || '/images/blog-placeholder.jpg').trim()}
                   alt={post.title}
                   width={600}
                   height={340}
@@ -68,14 +73,12 @@ export default async function Blog() {
                 <span className="blog-date">{formatDate(post.published_at)}</span>
                 <h2 className="blog-title">{post.title}</h2>
                 <p className="blog-excerpt">{createMetaDescription(post.excerpt || post.content, 120)}</p>
-                <span className="read-more">Read More</span>
+                <span className="read-more">Read Article</span>
               </div>
             </Link>
           </div>
         ))}
       </div>
-
-      {/* Add pagination if needed */}
     </div>
   );
 }

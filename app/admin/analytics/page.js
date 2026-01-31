@@ -84,28 +84,24 @@ export default function AnalyticsDashboard() {
           
           // Check if we got actual data back
           if (pageViewsData.length === 0) {
-            console.warn('No page view data returned, using mock data');
             setPageViews(mockPageViews);
           } else {
             setPageViews(pageViewsData);
           }
           
           if (eventsData.length === 0) {
-            console.warn('No event data returned, using mock data');
             setEventCounts(mockEventCounts);
           } else {
             setEventCounts(eventsData);
           }
           
           if (referralsData.length === 0) {
-            console.warn('No referral data returned, using mock data');
             setReferrals(mockReferrals);
           } else {
             setReferrals(referralsData);
           }
           
         } catch (apiError) {
-          console.error('API Error:', apiError);
           
           // Check if it's an authentication error
           if (apiError.message && (
@@ -124,7 +120,6 @@ export default function AnalyticsDashboard() {
           setReferrals(mockReferrals);
         }
       } catch (err) {
-        console.error("Error fetching analytics data:", err);
         setError("Failed to fetch analytics data: " + err.message);
         
         // Fall back to mock data as a last resort
@@ -173,7 +168,6 @@ export default function AnalyticsDashboard() {
       setReferrals(referralsData);
       
     } catch (error) {
-      console.error("Auth retry failed:", error);
       setError("Google Analytics authorization failed. Using mock data.");
       
       // Keep using mock data

@@ -23,10 +23,7 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
   // The current track to display
   const currentTrack = featuredTracks[currentTrackIndex] || null;
 
-  // Add debugging for overlay status
-  useEffect(() => {
-    console.log("Overlay status:", { showOverlay, hasOverlayTrack: !!overlayTrack });
-  }, [showOverlay, overlayTrack]);
+
 
   // Fetch all featured tracks from the database
   useEffect(() => {
@@ -41,11 +38,8 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
           .order('created_at', { ascending: false });
           
         if (error) {
-          console.error('Error fetching featured tracks:', error);
           return;
         }
-        
-        console.log("Fetched featured tracks:", data);
         
         if (data && data.length > 0) {
           // Process each track to get its album artwork
@@ -67,7 +61,6 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
                     .getPublicUrl(track.image_url);
                     
                   if (imageError) {
-                    console.error('Error fetching album artwork:', imageError);
                     return track;
                   }
                   
@@ -86,18 +79,15 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
           // Check if any track has overlay set to true
           const overlayTrack = tracksWithArtwork.find(track => track.overlay === true);
           if (overlayTrack) {
-            console.log('Found overlay track:', overlayTrack.title);
             setOverlayTrack(overlayTrack);
             setShowOverlay(true); // Ensure overlay is visible
           } else {
             // If no overlay track is found, use the first track as overlay
-            console.log('No overlay track found, using first track');
             setOverlayTrack(tracksWithArtwork[0]);
             setShowOverlay(true); // Ensure overlay is visible
           }
         }
       } catch (error) {
-        console.error('Error in fetching featured tracks:', error);
       } finally {
         setLoading(false);
       }
@@ -108,7 +98,6 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
     // Return a cleanup function
     return () => {
       // This will run when component unmounts
-      console.log("Hero component cleanup");
     };
   }, []);
 
@@ -155,7 +144,6 @@ const Hero = ({ title, subtitle, bgImage, featuredVideos = [] }) => {
   }, []);
 
   const handleError = () => {
-    console.error(`Failed to load image: ${imgSrc}`);
     if (imgSrc !== '/images/hero-bg.jpg') {
       setImgSrc('/images/hero-bg.jpg');
     }

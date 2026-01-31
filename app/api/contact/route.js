@@ -26,7 +26,6 @@ if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWO
     });
     
   } catch (error) {
-    console.error('Error setting up email transporter:', error);
   }
 }
 
@@ -72,11 +71,9 @@ async function addSubscriberToMailingList(name, email) {
     if (response.ok) {
       return { success: true, message: 'Successfully added to mailing list', data };
     } else {
-      console.error('Error adding to mailing list:', data);
       return { success: false, message: data.message || 'Failed to add to mailing list' };
     }
   } catch (error) {
-    console.error('Exception adding to mailing list:', error);
     return { success: false, message: `Error: ${error.message}` };
   }
 }
@@ -98,7 +95,6 @@ export async function POST(request) {
       .insert([{ name, email, subject, message }]);
 
     if (error) {
-      console.error('Supabase error:', error);
       return new Response(
         JSON.stringify({ message: 'Failed to save contact' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -181,13 +177,6 @@ export async function POST(request) {
         }
         
       } catch (emailError) {
-        console.error('Failed to send email notification:', emailError);
-        console.error('Email configuration:', {
-          host: process.env.EMAIL_HOST,
-          port: process.env.EMAIL_PORT,
-          user: process.env.EMAIL_USER,
-          from: process.env.EMAIL_FROM,
-        });
         emailStatus = `Failed: ${emailError.message}`;
         emailDetails = { error: emailError.message };
       }

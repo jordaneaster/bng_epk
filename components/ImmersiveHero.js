@@ -108,7 +108,6 @@ const ImmersiveHero = ({
         });
       }
     } catch (error) {
-      console.error('Subscription error:', error);
       setSubscribeStatus('error');
       setErrorMessage('Network error. Please try again.');
       trackClickEvent('hero_subscribe', { 

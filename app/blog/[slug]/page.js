@@ -43,6 +43,7 @@ export async function generateMetadata({ params }) {
     title: `${post.title} - BNG Music Entertainment Blog`,
     description,
     path: `/blog/${slug}`,
+    
     ogImage: post.featured_image || '/images/blog-placeholder.jpg',
     keywords: post.tags?.join(', ') || 'BNG music, hip-hop, music blog',
     type: 'article',
@@ -111,7 +112,7 @@ export default async function BlogPost({ params }) {
         {post.featured_image && (
           <div className="blog-featured-image">
             <Image
-              src={post.featured_image}
+              src={post.featured_image.trim()}
               alt={post.title}
               width={1200}
               height={675}
@@ -155,7 +156,7 @@ export default async function BlogPost({ params }) {
                 <Link href={`/blog/${related.slug}`}>
                   <div className="related-post-image">
                     <Image
-                      src={related.featured_image || '/images/blog-placeholder.jpg'}
+                      src={(related.featured_image || '/images/blog-placeholder.jpg').trim()}
                       alt={related.title}
                       width={400}
                       height={225}

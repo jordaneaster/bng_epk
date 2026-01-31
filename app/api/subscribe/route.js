@@ -22,7 +22,6 @@ export async function POST(request) {
       .single();
 
     if (lookupError && lookupError.code !== 'PGRST116') {
-      console.error('Error checking for existing subscriber:', lookupError);
       return NextResponse.json({ 
         success: false, 
         message: 'Error processing your request'
@@ -54,7 +53,6 @@ export async function POST(request) {
       ]);
 
     if (insertError) {
-      console.error('Error inserting subscriber:', insertError);
       return NextResponse.json({ 
         success: false, 
         message: 'Error processing your subscription' 
@@ -69,7 +67,6 @@ export async function POST(request) {
       message: 'Subscription successful!'
     });
   } catch (error) {
-    console.error('Subscription error:', error);
     return NextResponse.json({ 
       success: false, 
       message: 'Internal server error' 

@@ -87,7 +87,6 @@ export default function MailingListSubscribe() {
       setStatus('Thanks for subscribing! Check your email to confirm.');
     } catch (error) {
       setStatus(error.message || 'An error occurred. Please try again later.');
-      console.error('Subscription error:', error);
     } finally {
       setIsSubmitting(false);
     }

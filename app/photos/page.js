@@ -31,7 +31,6 @@ async function fetchImages() {
     });
 
   if (listError) {
-    console.error('Error listing files:', listError);
     return [];
   }
 

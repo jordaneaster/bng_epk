@@ -53,7 +53,6 @@ function processUserData(userData) {
       processed.country = hashData(userData.country.trim().toLowerCase());
     }
   } catch (error) {
-    console.error("Error processing user data:", error);
   }
   
   return processed;
@@ -98,7 +97,6 @@ async function sendEventToMeta(eventData) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error sending event to Meta Conversions API:', error);
     throw error;
   }
 }
@@ -108,7 +106,6 @@ export async function POST(request) {
   try {
     // Return early if access token or pixel ID is missing
     if (!ACCESS_TOKEN || !PIXEL_ID) {
-      console.warn('Meta Conversions API is not configured. Missing access token or pixel ID.');
       return NextResponse.json({
         success: false,
         message: 'Meta Conversions API is not configured',
@@ -172,7 +169,6 @@ export async function POST(request) {
       eventId: event.event_id,
     });
   } catch (error) {
-    console.error('Error in Meta conversion API route:', error);
     
     // Return error response
     return NextResponse.json({

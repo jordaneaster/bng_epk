@@ -2,8 +2,34 @@ import { NextResponse } from 'next/server';
 import { supabase } from '../../../lib/supabaseClient';
 import { artistInfo } from '../../../data/mockData';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
+    
+    // Fetch artist info (DB-first, fallback to mockData)
+    const { data: artistRows, error: artistError } = await supabase
+      .from('bng_artist_info')
+      .select('*');
+
+    if (artistError) {
+    }
+
+    const artistRow = artistRows && artistRows.length > 0 ? artistRows[0] : null;
+
+    const artistFromDb = artistRow
+      ? {
+          name: artistRow.artist_name,
+          tagline: artistRow.tag_line,
+          longBio: artistRow.long_bio,
+          bio: artistRow.short_bio,
+          shortBio: artistRow.short_bio,
+          email: artistRow.email || 'melissa@bngmusicentertainment.com',
+        }
+      : artistInfo;
+
+
     // Fetch music data
     const { data: musicData, error: musicError } = await supabase
       .from('bng_music')
@@ -53,14 +79,19 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        artist: artistInfo,
+        artist: artistFromDb,
         music: musicData || [],
         videos: videoData || [],
         images: imageUrls || [],
       }
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
   } catch (error) {
-    console.error("Error generating EPK data:", error);
     return NextResponse.json({
       success: false,
       error: error.message || "Error generating EPK data"

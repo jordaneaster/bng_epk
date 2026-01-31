@@ -21,7 +21,6 @@ function prepareVideoId(id, medium) {
       if (id && (id.startsWith('http://') || id.startsWith('https://'))) {
         return encodeURIComponent(id);
       } else {
-        console.warn(`Facebook video_id "${id}" does not look like a URL. Skipping encoding.`);
         return id; // Return as is if it doesn't look like a URL
       }
     } catch (e) {
@@ -41,7 +40,6 @@ export default async function Videos() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching videos:', error);
     return (
         <div className="container">
           <h1 className="text-center mb-4">Videos</h1>
@@ -88,7 +86,6 @@ export default async function Videos() {
 
             // Skip rendering if video ID preparation failed
             if (!preparedVideoId) {
-              console.warn(`Skipping video with original ID: ${video.video_id} due to processing error.`);
               return null;
             }
 

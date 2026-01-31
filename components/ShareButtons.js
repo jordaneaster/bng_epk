@@ -64,7 +64,6 @@ export default function ShareButtons({ title, url }) {
         text: `Check out this article: ${title}`,
         url: url
       }).catch(err => {
-        console.error('Error sharing:', err);
         // Fall back to platform-specific sharing
         if (platform === 'twitter') handleTwitterShare(e);
         else if (platform === 'facebook') handleFacebookShare(e);

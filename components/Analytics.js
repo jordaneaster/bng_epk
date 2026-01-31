@@ -26,7 +26,6 @@ function AnalyticsTracker() {
     try {
       hasConsent = localStorage.getItem('cookieConsent') === 'accepted';
     } catch (e) {
-      console.warn('Could not access localStorage for consent check:', e);
     }
     
     if (hasConsent) {
@@ -89,7 +88,6 @@ export default function Analytics() {
                     });
                   }
                 } catch (e) {
-                  console.warn('Could not access localStorage for GA consent check:', e);
                 }
               `,
             }}
@@ -127,7 +125,6 @@ export default function Analytics() {
                   fbq('init', '${FB_PIXEL_ID}');
                 }
               } catch (e) {
-                console.warn('Error initializing FB pixel:', e);
                 // Initialize with consent revoked as fallback
                 fbq('consent', 'revoke');
                 fbq('init', '${FB_PIXEL_ID}');

@@ -16,7 +16,6 @@ export async function GET(request, { params }) {
       .single();
     
     if (error) {
-      console.error('Error fetching video data:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
@@ -45,7 +44,6 @@ export async function GET(request, { params }) {
       } 
     });
   } catch (error) {
-    console.error('Server error fetching video data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

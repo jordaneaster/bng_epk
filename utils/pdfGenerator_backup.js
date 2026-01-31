@@ -247,6 +247,44 @@ export async function generateEPK(
 
 
     // ================= PAGE 3 - MUSIC =================
+      
+      y += lines.length * lineHeight;
+      
+      // Add spacing between paragraphs (but not after the last one)
+      if (i < paragraphs.length - 1) {
+        y += paragraphSpacing;
+      }
+    }
+
+    // BNG Callout Box (only on page 1)
+    y += 10;
+    const calloutText = "BNG Nappsakk’s work aligns with CHRÉE CEE AF’s mission of celebrating Black artistry, cultural innovation, and community-driven creative expression.";
+    
+    // Calculate space needed
+    const calloutLines = doc.splitTextToSize(calloutText, contentWidth - 10);
+    const calloutH = (calloutLines.length * 5.5) + 12; // padding
+    
+    // Draw box
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.setFillColor(colors.surface[0], colors.surface[1], colors.surface[2]);
+    doc.roundedRect(margin, y, contentWidth, calloutH, 2, 2, 'FD');
+    
+    // Draw text
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.text(calloutLines, margin + 5, y + 8);
+    
+    y += calloutH;
+    
+    // Add page number
+    doc.setFontSize(9);
+    doc.setTextColor(colors.textSec[0], colors.textSec[1], colors.textSec[2]);
+    doc.text("1 / 3", pageWidth - margin, pageHeight - margin, { align: 'right' });
+
+
+    // ================= PAGE 3 - MUSIC =================
     doc.addPage();
     doc.setFillColor(colors.bg[0], colors.bg[1], colors.bg[2]);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
@@ -296,7 +334,7 @@ export async function generateEPK(
             );
             
             doc.text("Listen Now", tx + 5, linkY + 3);
-            doc.link(tx, linkY - 2, 30, 6, { url: track.spotify_link || track.url, newWindow: true });
+            doc.link(tx, linkY - 2, 30, 6, { url: track.spotify_link || track.url });
         }
     }
     y += trackWidth + 40; // Increased padding before festivals
@@ -434,7 +472,7 @@ export async function generateEPK(
         doc.text(`Watch on ${platform}`, margin + 25, y + 18);
         
         // Whole row link
-        doc.link(margin, y, contentWidth, rowH, { url: vidLink, newWindow: true });
+        doc.link(margin, y, contentWidth, rowH, { url: vidLink });
         
         y += rowH + 6; // Reduced
     }
@@ -448,7 +486,7 @@ export async function generateEPK(
     if (options.photosPageUrl) {
          doc.setFontSize(10);
          doc.text("View All >", margin + 40, y); 
-         doc.link(margin + 40, y - 4, 30, 6, { url: options.photosPageUrl, newWindow: true });
+         doc.link(margin + 40, y - 4, 30, 6, { url: options.photosPageUrl });
     }
     y += 6; // Reduced
 
@@ -534,7 +572,7 @@ export async function generateEPK(
         
         doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
         doc.text(txt, pillX + 4, pillY + 4);
-        doc.link(pillX, pillY, w, 6, { url: link.url, newWindow: true });
+        doc.link(pillX, pillY, w, 6, { url: link.url });
         
         pillX += w + 4;
     });

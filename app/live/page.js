@@ -15,7 +15,6 @@ async function getLiveEvents() {
       .order('date', { ascending: true });
     
     if (error) {
-      console.error('Error fetching live events:', error);
       return { upcoming: [], past: [] };
     }
     
@@ -29,7 +28,6 @@ async function getLiveEvents() {
     
     return { upcoming, past };
   } catch (err) {
-    console.error('Failed to fetch live events:', err);
     return { upcoming: [], past: [] };
   }
 }
@@ -46,7 +44,6 @@ export default function LiveEvents() {
         setUpcomingShows(upcoming);
         setPastShows(past);
       } catch (error) {
-        console.error('Error fetching events:', error);
       } finally {
         setIsLoading(false);
       }

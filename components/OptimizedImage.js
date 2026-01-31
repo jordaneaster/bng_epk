@@ -32,7 +32,6 @@ export default function OptimizedImage({
   const handleImageError = () => {
     setIsLoading(false);
     setError(true);
-    console.error(`Failed to load image: ${src}`);
   };
   
   // Responsive sizes attribute based on width

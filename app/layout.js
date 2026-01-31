@@ -1,4 +1,5 @@
 import '../styles/globals.css'; // Your global styles
+import '../styles/blog.css'; // Blog styles
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Analytics from '@/components/Analytics';
@@ -7,7 +8,7 @@ import StickySocialFollow from '@/components/StickySocialFollow';
 
 export const metadata = {
   title: 'BNG NappSakk - EPK',
-  description: 'Hip-Hop Visionary | Performer | Fashion Icon',
+  description: 'Independent Hip-Hop Artist | Live Performer | Cultural Storyteller',
   metadataBase: new URL('https://bngmusicentertainment.com'),
   viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',

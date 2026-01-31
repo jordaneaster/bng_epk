@@ -56,7 +56,6 @@ export default function Home() {
         } catch (error) {
           // If API endpoint doesn't exist yet, create a fallback
           blogData = { data: [] };
-          console.warn("Blog API not available yet");
         }
 
         // Fetch next upcoming show
@@ -69,7 +68,6 @@ export default function Home() {
           .limit(1);
 
         if (liveEventsError) {
-          console.error('Error fetching next show:', liveEventsError);
         } else if (liveEventsData && liveEventsData.length > 0) {
           setNextShow(liveEventsData[0]);
         }
@@ -83,7 +81,6 @@ export default function Home() {
           .limit(1);
           
         if (premiereError) {
-          console.error('Error fetching premiere video:', premiereError);
         } else if (premiereData && premiereData.length > 0) {
           setPremiereVideo(premiereData[0]);
         }
@@ -93,7 +90,6 @@ export default function Home() {
         setStoryVideos(storyData.data || []);
         setBlogPosts(blogData.data || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -146,7 +142,7 @@ export default function Home() {
       spotify_link: musicTracks[0].spotify_link,
       apple_music_link: musicTracks[0].apple_music_link,
       youtube_link: musicTracks[0].youtube_link,
-      imageUrl: musicTracks[0].image_url || '/images/album-cover.jpg'
+      imageUrl: (musicTracks[0].image_url || '/images/album-cover.jpg').trim()
     } : null;
   }, [musicTracks]);
 
@@ -337,7 +333,7 @@ export default function Home() {
               <div className="promo-card show-promo">
                 <div className="promo-image-wrapper">
                   <Image
-                    src={nextShow.flyer_image || '/images/flyer-placeholder.jpg'}
+                    src={(nextShow.flyer_image || '/images/flyer-placeholder.jpg').trim()}
                     alt={`BNG NappSakk performing at ${nextShow.venue}`}
                     width={300}
                     height={400}
@@ -404,7 +400,7 @@ export default function Home() {
                     <div className="story-media">
                       <div className="thumbnail-container">
                         <Image 
-                          src={item.src}
+                          src={item.src ? item.src.trim() : ''}
                           alt={item.alt}
                           fill
                           style={{ objectFit: 'cover' }}
@@ -460,7 +456,7 @@ export default function Home() {
                 <Link href={`/blog/${post.slug}`} className="blog-card-inner">
                   <div className="blog-image-container">
                     <Image
-                      src={post.featured_image || '/images/blog-placeholder.jpg'}
+                      src={(post.featured_image || '/images/blog-placeholder.jpg').trim()}
                       alt={post.title}
                       width={600}
                       height={340}

@@ -11,6 +11,7 @@ const navLinks = [
   // { href: '/videos', label: 'Videos' },
   { href: '/photos', label: 'Photos' },
   { href: '/live', label: 'BNG Live' },
+  { href: '/blog', label: 'Blog' },
   { href: '/epk', label: 'EPK' },  // Add EPK link here
   // { href: '/press', label: 'Press' },
   { href: '/contact', label: 'Contact' },

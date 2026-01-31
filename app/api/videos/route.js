@@ -39,7 +39,6 @@ export async function GET(request) {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching video data:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
@@ -52,7 +51,6 @@ export async function GET(request) {
     
     return NextResponse.json({ data: enhancedData });
   } catch (error) {
-    console.error('Server error fetching video data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

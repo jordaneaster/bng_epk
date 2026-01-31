@@ -39,7 +39,6 @@ export default async function Music() {
   // Log the result from Supabase
 
   if (error) {
-    console.error('Error fetching music:', error);
     return (
       
         <div className="container">

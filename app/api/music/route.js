@@ -24,13 +24,11 @@ export async function GET(request) {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching music data:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('Server error fetching music data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

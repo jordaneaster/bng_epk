@@ -32,7 +32,6 @@ export default function CookieConsent() {
         }
       }
     } catch (e) {
-      console.warn('Error accessing localStorage for consent check:', e);
       // Show consent banner if we can't determine consent status
       setShowConsent(true);
     }
@@ -55,7 +54,6 @@ export default function CookieConsent() {
         updateConsentStatus(true);
       }
     } catch (e) {
-      console.error('Error saving consent:', e);
       // Close banner anyway to avoid blocking the UI
       setShowConsent(false);
     }
@@ -78,7 +76,6 @@ export default function CookieConsent() {
         updateConsentStatus(false);
       }
     } catch (e) {
-      console.error('Error saving consent rejection:', e);
       // Close banner anyway
       setShowConsent(false);
     }

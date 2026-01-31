@@ -15,14 +15,12 @@ export async function GET(request) {
       .limit(limit);
     
     if (error) {
-      console.error('Error fetching blog data:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
     // Return the blog posts
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('Server error fetching blog data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

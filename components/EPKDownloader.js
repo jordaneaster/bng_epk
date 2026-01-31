@@ -123,24 +123,36 @@ export default function EPKDownloader() {
           onClick={handleDownload}
           disabled={isGenerating}
           className="btn"
-          style={{ width: '100%' }}
+          style={{ width: '100%', position: 'relative' }}
         >
+          {isGenerating && (
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          )}
           {isGenerating ? 'Generating EPK...' : 'Download EPK (PDF)'}
         </button>
         
         {isGenerating && progress > 0 && (
-          <div className="progress mt-3" style={{ height: '5px' }}>
-            <div 
-              className="progress-bar" 
-              role="progressbar" 
-              style={{ 
-                width: `${progress}%`, 
-                backgroundColor: 'var(--color-primary)',
-              }} 
-              aria-valuenow={progress} 
-              aria-valuemin="0" 
-              aria-valuemax="100"
-            ></div>
+          <div className="mt-3">
+            <div className="progress" style={{ height: '5px' }}>
+              <div 
+                className="progress-bar" 
+                role="progressbar" 
+                style={{ 
+                  width: `${progress}%`, 
+                  backgroundColor: 'var(--color-primary)',
+                  transition: 'width 0.3s ease'
+                }} 
+                aria-valuenow={progress} 
+                aria-valuemin="0" 
+                aria-valuemax="100"
+              ></div>
+            </div>
+            <p className="text-center mt-2 mb-0" style={{ fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+              {progress < 30 && 'Fetching EPK data...'}
+              {progress >= 30 && progress < 50 && 'Processing content...'}
+              {progress >= 50 && progress < 80 && 'Generating PDF...'}
+              {progress >= 80 && 'Almost done...'}
+            </p>
           </div>
         )}
         
@@ -150,6 +162,31 @@ export default function EPKDownloader() {
           </div>
         )}
       </div>
+      
+      <style jsx>{`
+        .spinner-border {
+          display: inline-block;
+          width: 1rem;
+          height: 1rem;
+          vertical-align: text-bottom;
+          border: 0.15em solid currentColor;
+          border-right-color: transparent;
+          border-radius: 50%;
+          animation: spinner-border 0.75s linear infinite;
+        }
+        
+        .spinner-border-sm {
+          width: 0.875rem;
+          height: 0.875rem;
+          border-width: 0.1em;
+        }
+        
+        @keyframes spinner-border {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }

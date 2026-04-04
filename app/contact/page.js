@@ -188,8 +188,8 @@ export default function Contact() {
               <div className="sidebar-card">
                 <div className="sidebar-icon"><FaEnvelope /></div>
                 <h4>Direct Email</h4>
-                <a href="mailto:contact@bngmusicentertainment.com" className="email-link">
-                  contact@bngmusicentertainment.com
+                <a href="mailto:melissa@bngmusicentertainment.com" className="email-link">
+                  melissa@bngmusicentertainment.com
                 </a>
               </div>
 

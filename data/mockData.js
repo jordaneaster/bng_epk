@@ -141,7 +141,7 @@ export const socialLinks = {
   appleMusic: "https://music.apple.com/us/artist/bng-nappsakk/1599225835",
   soundcloud: "https://soundcloud.com/search?q=bng%20nappsakk",
   youtube: "https://www.youtube.com/@bngnappsakk",
-  instagram: "https://instagram.com/p/DIjZF9FRTyG",
+  instagram: "https://www.instagram.com/bng_nappsakk/",
   twitter: "https://x.com/BNG_Nappsakk",
   facebook: "https://facebook.com/napp.sakk.9",
   tiktok: "https://tiktok.com/@bng_nappsakk",

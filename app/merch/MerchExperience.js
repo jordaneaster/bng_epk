@@ -133,15 +133,6 @@ function CountdownBanner({ timeLeft }) {
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{ backgroundImage: GRAIN_TEXTURE, backgroundSize: "130px 130px" }}
       />
-      <div className="container relative z-10 flex flex-wrap items-center justify-between gap-3 py-3 text-xs uppercase tracking-[0.2em] text-[#f2ead7] sm:text-sm">
-        <span className="font-semibold">Drop Ends In</span>
-        <div className="flex items-center gap-2 [font-family:var(--font-heading)] font-black">
-          <TimePill label="D" value={timeLeft.days} />
-          <TimePill label="H" value={timeLeft.hours} />
-          <TimePill label="M" value={timeLeft.minutes} />
-          <TimePill label="S" value={timeLeft.seconds} />
-        </div>
-      </div>
     </div>
   );
 }

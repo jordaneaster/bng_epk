@@ -50,9 +50,9 @@ export default function StickySocialFollow() {
         borderTopLeftRadius: '8px',
         borderBottomLeftRadius: '8px',
         boxShadow: '-2px 0 10px rgba(0, 0, 0, 0.1)',
-        padding: '0.5rem 0',
+        padding: '0.5rem 0.5rem 0.5rem 0',
         transition: 'right 0.3s ease',
-        right: isVisible ? 0 : '-44px',
+        right: isVisible ? '0.5rem' : '-44px',
       }}
     >
       <button 

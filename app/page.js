@@ -1,15 +1,19 @@
 "use client";
 
-import ImmersiveHero from '../components/ImmersiveHero';
-import VideoEmbed from '../components/VideoEmbed';
+import CinematicHero from '@/components/CinematicHero';
+import CredibilityBanner from '@/components/CredibilityBanner';
+import VideoEmbed from '@/components/VideoEmbed';
+import AnimateOnScroll from '@/components/motion/AnimateOnScroll';
 import Link from 'next/link';
 import Image from 'next/image';
-import { artistInfo } from '../data/mockData';
+import { motion } from 'framer-motion';
+import { artistInfo } from '@/data/mockData';
 import { useEffect, useState, useMemo } from 'react';
 import Script from 'next/script';
-import { createMusicGroupSchema } from '../lib/seo';
-import { FaSpotify, FaApple, FaYoutube, FaArrowRight } from 'react-icons/fa';
-import { supabase } from '../lib/supabaseClient'; // Import Supabase client
+import { createMusicGroupSchema } from '@/lib/seo';
+import { FaSpotify, FaApple, FaYoutube, FaArrowRight, FaCalendarAlt, FaMapMarkerAlt, FaClock, FaPlay } from 'react-icons/fa';
+import { supabase } from '@/lib/supabaseClient';
+import { staggerContainer, fadeInUp, fadeInLeft, fadeInRight, lineGrow } from '@/lib/animations';
 
 // Since this is now a Client Component, we need to fetch data client-side
 export default function Home() {
@@ -251,7 +255,21 @@ export default function Home() {
   });
 
   if (isLoading) {
-    return <div className="container text-center py-5">Loading...</div>;
+    return (
+      <div style={{
+        height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#0a0a0a', color: 'rgba(255,255,255,0.3)',
+        fontFamily: 'var(--font-heading)', fontSize: '0.8rem',
+        textTransform: 'uppercase', letterSpacing: '0.2em',
+      }}>
+        <motion.span
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          Loading
+        </motion.span>
+      </div>
+    );
   }
 
   return (
@@ -262,575 +280,256 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Next Show Promo Section - With Video Premiere */}
-      <section className="promo-section">
-        <div className="container">
-          <div className="promo-grid">
-            {premiereVideo && (
-              <div className="promo-card video-premiere">
-                <div className="premiere-video-container">
-                  <VideoEmbed 
-                    videoId={premiereVideo.video_id} 
-                    platform={premiereVideo.medium || 'youtube'}
-                    title={premiereVideo.title}
-                  />
-                </div>
-                <div className="promo-details">
-                  <h4>Video Premiere!</h4>
-                  <h3>{premiereVideo.title}</h3>
-                  
-                  {/* Dynamic premiere time display */}
-                  <div className={`premiere-time-container ${isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? 'live' : ''}`}>
-                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? (
-                      <div className="live-now">
-                        <span className="pulse-dot"></span> Streaming Now!
-                      </div>
-                    ) : (
-                      <>
-                        <p className="premiere-label">Premiering in</p>
-                        <div className="countdown-timer">
-                          {(() => {
-                            const countdown = formatCountdown(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null);
-                            if (!countdown) return null;
-                            
-                            return (
-                              <>
-                                <div className="time-unit">
-                                  <span className="time-value">{countdown.hours}</span>
-                                  <span className="time-label">hours</span>
-                                </div>
-                                <div className="time-separator">:</div>
-                                <div className="time-unit">
-                                  <span className="time-value">{countdown.minutes.toString().padStart(2, '0')}</span>
-                                  <span className="time-label">min</span>
-                                </div>
-                                <div className="time-separator">:</div>
-                                <div className="time-unit">
-                                  <span className="time-value">{countdown.seconds.toString().padStart(2, '0')}</span>
-                                  <span className="time-label">sec</span>
-                                </div>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  
-                  <a href={`https://www.youtube.com/watch?v=${premiereVideo.video_id}`} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     className="promo-cta-btn">
-                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) 
-                      ? 'Watch Video' 
-                      : 'Watch Premiere'} <FaArrowRight />
-                  </a>
-                </div>
-              </div>
-            )}
-            
-            {nextShow && (
-              <div className="promo-card show-promo">
-                <div className="promo-image-wrapper">
-                  <Image
-                    src={(nextShow.flyer_image || '/images/flyer-placeholder.jpg').trim()}
-                    alt={`BNG NappSakk performing at ${nextShow.venue}`}
-                    width={300}
-                    height={400}
-                    style={{ objectFit: 'cover' }} 
-                  />
-                </div>
-                <div className="promo-details">
-                  <h4>BNG NappSakk Live!</h4>
-                  <h3>{nextShow.title}</h3>
-                  <p className="artist-performing">
-                    <strong>BNG NappSakk</strong> brings the Wilkinsburg sound to {nextShow.city}
-                  </p>
-                  <p className="venue">{nextShow.venue}</p>
-                  <p className="date-time">
-                    {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} - {nextShow.time}
-                  </p>
-                  <p className="location">{nextShow.city}, {nextShow.state}</p>
-                  {nextShow.description && (
-                    <p className="show-description">{nextShow.description}</p>
-                  )}
-                  <Link href="/live" className="promo-cta-btn">
-                    Get Tickets & Details <FaArrowRight />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-      
-      <ImmersiveHero 
+      {/* === CINEMATIC HERO === */}
+      <CinematicHero
         artistName={artistInfo.name}
         tagline={artistInfo.tagline}
         videoUrl="/videos/hero-background.mp4"
         fallbackImageUrl="/images/hero-bg.jpg"
         latestRelease={latestTrack}
       />
-      
-      <section className="visual-story-section">
-        <div className="container">
-          <h2 className="section-title">The <span className="highlight">Story</span></h2>
-          <div className="visual-story-container">
-            {storyItems.map((item) => (
-              <div key={item.id} className="story-item-wrapper">
-                {item.type === 'video' ? (
-                  <div className="story-item video-item">
-                    <div className="story-video-container">
-                      <VideoEmbed 
-                        videoId={item.videoId} 
-                        platform={item.platform || 'youtube'}
-                        title={item.title}
-                      />
-                    </div>
-                    <div className="story-caption">
-                      <h3>{item.title}</h3>
-                      <p>{item.description}</p>
-                      <Link href={item.link} className="view-more-link">
-                        Watch Full Video
-                      </Link>
-                    </div>
+
+      {/* === CREDIBILITY BANNER === */}
+      <CredibilityBanner />
+
+      {/* === VIDEO PREMIERE + NEXT SHOW === */}
+      {(premiereVideo || nextShow) && (
+        <section className="promo-section section">
+          <div className="container">
+            <motion.div
+              className="promo-grid"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              {premiereVideo && (
+                <motion.div className="promo-card" variants={fadeInLeft}>
+                  <div className="promo-video-wrap">
+                    <VideoEmbed
+                      videoId={premiereVideo.video_id}
+                      platform={premiereVideo.medium || 'youtube'}
+                      title={premiereVideo.title}
+                    />
                   </div>
-                ) : (
-                  <Link href={item.link} className="story-item">
-                    <div className="story-media">
-                      <div className="thumbnail-container">
-                        <Image 
+                  <div className="promo-info">
+                    <span className="promo-badge">Video Premiere</span>
+                    <h3 className="promo-title">{premiereVideo.title}</h3>
+                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? (
+                      <div className="live-badge">
+                        <span className="pulse-dot" /> Streaming Now
+                      </div>
+                    ) : (
+                      (() => {
+                        const countdown = formatCountdown(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null);
+                        return countdown && (
+                          <div className="countdown-row">
+                            <div className="cd-unit"><span className="cd-val">{countdown.hours}</span><span className="cd-label">hrs</span></div>
+                            <span className="cd-sep">:</span>
+                            <div className="cd-unit"><span className="cd-val">{countdown.minutes.toString().padStart(2, '0')}</span><span className="cd-label">min</span></div>
+                            <span className="cd-sep">:</span>
+                            <div className="cd-unit"><span className="cd-val">{countdown.seconds.toString().padStart(2, '0')}</span><span className="cd-label">sec</span></div>
+                          </div>
+                        );
+                      })()
+                    )}
+                    <a
+                      href={`https://www.youtube.com/watch?v=${premiereVideo.video_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn promo-cta"
+                    >
+                      <FaPlay style={{ fontSize: '0.7rem' }} />
+                      {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? 'Watch Now' : 'Watch Premiere'}
+                    </a>
+                  </div>
+                </motion.div>
+              )}
+
+              {nextShow && (
+                <motion.div className="promo-card show-card" variants={fadeInRight}>
+                  <div className="show-image-wrap">
+                    <Image
+                      src={(nextShow.flyer_image || '/images/flyer-placeholder.jpg').trim()}
+                      alt={`BNG NappSakk at ${nextShow.venue}`}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                    <div className="show-image-overlay" />
+                  </div>
+                  <div className="show-info">
+                    <span className="promo-badge live-badge-bg">Live Show</span>
+                    <h3 className="promo-title">{nextShow.title}</h3>
+                    <div className="show-details">
+                      <p><FaMapMarkerAlt className="detail-icon" /> {nextShow.venue}</p>
+                      <p><FaCalendarAlt className="detail-icon" /> {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                      {nextShow.time && <p><FaClock className="detail-icon" /> {nextShow.time}</p>}
+                      <p className="show-city">{nextShow.city}, {nextShow.state}</p>
+                    </div>
+                    <Link href="/live" className="btn promo-cta">
+                      Get Tickets <FaArrowRight style={{ fontSize: '0.75rem' }} />
+                    </Link>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* === GOLD DIVIDER === */}
+      <AnimateOnScroll variants={lineGrow} style={{ transformOrigin: 'center' }}>
+        <hr className="gold-divider" />
+      </AnimateOnScroll>
+
+      {/* === VISUAL STORY / VIDEOS === */}
+      {storyItems.length > 0 && (
+        <section className="stories-section section">
+          <div className="container">
+            <AnimateOnScroll>
+              <h2 className="section-heading">
+                The <span className="text-gradient-gold">Story</span>
+              </h2>
+            </AnimateOnScroll>
+            <motion.div
+              className="stories-grid"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
+              {storyItems.slice(0, 6).map((item, i) => (
+                <motion.div key={item.id} className="story-card" variants={fadeInUp}>
+                  {item.type === 'video' ? (
+                    <>
+                      <div className="story-video-wrap">
+                        <VideoEmbed
+                          videoId={item.videoId}
+                          platform={item.platform || 'youtube'}
+                          title={item.title}
+                        />
+                      </div>
+                      <div className="story-body">
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
+                        <Link href={item.link} className="story-link">
+                          Watch Full Video <FaArrowRight />
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <Link href={item.link} className="story-image-link">
+                      <div className="story-thumb">
+                        <Image
                           src={item.src ? item.src.trim() : ''}
                           alt={item.alt}
                           fill
                           style={{ objectFit: 'cover' }}
-                          sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 380px"
+                          sizes="(max-width: 768px) 90vw, 380px"
                         />
                       </div>
-                    </div>
-                    
-                    <div className="story-caption">
-                      <h3>{item.title}</h3>
-                      <p>{item.description}</p>
-                    </div>
-                  </Link>
-                )}
-              </div>
-            ))}
+                      <div className="story-body">
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
+                      </div>
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
-        </div>
-      </section>
-      
-      <section className="bio-section">
+        </section>
+      )}
+
+      {/* === BIO SECTION === */}
+      <section className="bio-section section">
         <div className="container">
-          <div className="fade-in bio-content">
-            <h2>Who is <span className="highlight">{artistInfo.name}</span>?</h2>
-            <div className="bio-text">
-              <p 
-                className="bio-paragraph" 
-                dangerouslySetInnerHTML={{ __html: artistInfo.longBio }} 
-              />
+          <AnimateOnScroll>
+            <div className="bio-content">
+              <h2>
+                Who is <span className="text-gradient-gold">{artistInfo.name}</span>?
+              </h2>
+              <div className="bio-text">
+                <p className="bio-paragraph" dangerouslySetInnerHTML={{ __html: artistInfo.longBio }} />
+              </div>
+              <div className="bio-ctas">
+                <Link href="/about" className="btn">Read Full Bio</Link>
+                <Link href="/contact" className="btn btn-outline">Booking Inquiries</Link>
+              </div>
             </div>
-            
-            <div className="bio-cta">
-              <Link href="/contact" className="btn btn-primary">
-                Booking & Inquiries
-              </Link>
-            </div>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
-      
-      <section className="latest-news-section">
+
+      {/* === GOLD DIVIDER === */}
+      <AnimateOnScroll variants={lineGrow} style={{ transformOrigin: 'center' }}>
+        <hr className="gold-divider" />
+      </AnimateOnScroll>
+
+      {/* === LATEST NEWS === */}
+      <section className="news-section section">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Latest <span className="highlight">News</span></h2>
+            <AnimateOnScroll>
+              <h2 className="section-heading">
+                Latest <span className="text-gradient-gold">News</span>
+              </h2>
+            </AnimateOnScroll>
             <Link href="/blog" className="view-all-link">
-              View All Posts <FaArrowRight className="arrow-icon" />
+              View All <FaArrowRight />
             </Link>
           </div>
-          
-          <div className="blog-posts-grid">
-            {displayedPosts.map(post => (
-              <article key={post.id} className="blog-card fade-in">
-                <Link href={`/blog/${post.slug}`} className="blog-card-inner">
-                  <div className="blog-image-container">
+
+          <motion.div
+            className="news-grid"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {displayedPosts.map((post, i) => (
+              <motion.article key={post.id} className="news-card" variants={fadeInUp}>
+                <Link href={`/blog/${post.slug}`} className="news-card-inner">
+                  <div className="news-image">
                     <Image
                       src={(post.featured_image || '/images/blog-placeholder.jpg').trim()}
                       alt={post.title}
-                      width={600}
-                      height={340}
-                      className="blog-image"
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, 400px"
                     />
+                    <div className="news-image-overlay" />
                   </div>
-                  <div className="blog-content">
-                    <div className="blog-meta">
-                      <span className="blog-date">{formatDate(post.published_at)}</span>
-                      {post.author_name && (
-                        <span className="blog-author">By {post.author_name}</span>
-                      )}
+                  <div className="news-body">
+                    <div className="news-meta">
+                      <span className="news-date">{formatDate(post.published_at)}</span>
+                      {post.author_name && <span className="news-author">{post.author_name}</span>}
                     </div>
-                    <h3 className="blog-title">{post.title}</h3>
-                    <p className="blog-excerpt">{post.excerpt}</p>
-                    <span className="read-more-link">
-                      Read More <FaArrowRight className="read-more-icon" />
+                    <h3 className="news-title">{post.title}</h3>
+                    <p className="news-excerpt">{post.excerpt}</p>
+                    <span className="read-more">
+                      Read More <FaArrowRight />
                     </span>
                   </div>
                 </Link>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <style jsx>{`
-        .container {
-          width: 100%;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1.5rem;
-        }
-        
-        .section-title {
-          font-size: 2.5rem;
+        /* === SECTION DEFAULTS === */
+        .section-heading {
+          font-size: clamp(1.75rem, 4vw, 2.75rem);
           font-weight: 800;
           text-transform: uppercase;
+          letter-spacing: -0.01em;
           margin-bottom: 2rem;
           text-align: center;
-          letter-spacing: 1px;
-        }
-        
-        .highlight {
-          color: var(--color-primary); /* Using CSS variable for highlight */
         }
 
-        /* Promo Section Styles */
-        .promo-section {
-          padding: 3rem 0;
-          background-color: #181818; /* Dark background for the section */
-        }
-        
-        .promo-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
-          align-items: stretch;
-        }
-        
-        .promo-card {
-          display: flex;
-          flex-direction: column;
-          background-color: var(--color-card-bg);
-          border-radius: 8px;
-          box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-          overflow: hidden;
-          border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
-          height: 100%;
-        }
-        
-        .show-promo {
-          display: flex;
-          flex-direction: row;
-        }
-        
-        .video-premiere {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .promo-image-wrapper {
-          flex: 0 0 40%;
-          min-width: 200px;
-          max-width: 300px;
-        }
-        
-        .promo-image-wrapper img {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        
-        .premiere-video-container {
-          width: 100%;
-          border-radius: 8px 8px 0 0;
-          overflow: hidden;
-        }
-        
-        .promo-details {
-          padding: 1.5rem 2rem;
-          flex-grow: 1;
-          color: var(--color-text);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-        
-        .promo-details h4 {
-          font-size: 0.9rem;
-          text-transform: uppercase;
-          color: var(--color-primary);
-          margin-bottom: 0.25rem;
-          font-weight: 700;
-        }
-        
-        .promo-details h3 {
-          font-size: 1.8rem;
-          margin-bottom: 0.75rem;
-          color: var(--color-text); 
-          font-weight: 700;
-          font-family: var(--font-heading);
-        }
-        
-        .promo-details p {
-          margin-bottom: 0.5rem;
-          font-size: 1rem;
-          color: #ccc;
-        }
-        
-        .promo-details .venue, .premiere-time {
-          font-weight: 600;
-          color: var(--color-text);
-        }
-        
-        .promo-details .artist-performing {
-          font-size: 1rem;
-          color: var(--color-primary);
-          margin-bottom: 0.75rem;
-          font-style: italic;
-        }
-        
-        .promo-details .show-description {
-          font-size: 0.9rem;
-          color: #ddd;
-          margin-bottom: 1rem;
-          line-height: 1.4;
-        }
-        
-        .promo-cta-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-top: 1rem;
-          padding: 0.6rem 1.2rem;
-          background-color: var(--color-primary);
-          color: var(--color-background);
-          border-radius: 5px;
-          text-decoration: none;
-          font-weight: 600;
-          transition: background-color 0.3s ease, transform 0.2s ease;
-          border: 1px solid transparent;
-        }
-        
-        .promo-cta-btn:hover {
-          background-color: color-mix(in srgb, var(--color-primary) 85%, black);
-          transform: translateY(-2px);
-        }
-
-        @media (max-width: 992px) {
-          .show-promo {
-            flex-direction: column;
-          }
-          
-          .promo-image-wrapper {
-            max-width: 100%;
-            max-height: 350px;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .promo-grid {
-            grid-template-columns: 1fr;
-            max-width: 500px;
-            margin: 0 auto;
-          }
-          
-          .promo-details {
-            padding: 1.5rem;
-            text-align: center;
-          }
-          
-          .promo-details h3 {
-            font-size: 1.5rem;
-          }
-        }
-        /* End Promo Section Styles */
-        
-        .visual-story-section {
-          padding: 4rem 0;
-          background-color: rgba(0, 0, 0, 0.2);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .visual-story-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1.5rem;
-        }
-        
-        .story-item-wrapper {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .story-item {
-          position: relative;
-          border-radius: 8px;
-          overflow: hidden;
-          color: white;
-          text-decoration: none;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          background-color: #111;
-        }
-        
-        .story-item:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
-        
-        .story-video-container {
-          width: 100%;
-          border-radius: 8px 8px 0 0;
-          overflow: hidden;
-        }
-        
-        .story-video-container :global(.video-embed) {
-          margin-bottom: 0 !important;
-        }
-        
-        .story-media {
-          position: relative;
-          width: 100%;
-          padding-top: 75%;
-        }
-        
-        .thumbnail-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        }
-        
-        .story-caption {
-          padding: 1rem;
-          background: #181818;
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-        
-        .story-caption h3 {
-          margin: 0 0 0.5rem;
-          font-size: 1.2rem;
-          font-weight: 600;
-        }
-        
-        .story-caption p {
-          margin: 0;
-          font-size: 0.9rem;
-          opacity: 0.9;
-          line-height: 1.4;
-        }
-        
-        .view-more-link {
-          display: inline-block;
-          margin-top: 1rem;
-          color: #ff3c00;
-          font-weight: 500;
-          text-decoration: none;
-          font-size: 0.9rem;
-          transition: color 0.2s ease;
-        }
-        
-        .view-more-link:hover {
-          color: #ff6833;
-          text-decoration: underline;
-        }
-        
-        @media (max-width: 992px) {
-          .visual-story-container {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .visual-story-container {
-            grid-template-columns: 1fr;
-            max-width: 500px;
-            margin: 0 auto;
-          }
-        }
-        
-        .bio-section {
-          padding: 5rem 0;
-          background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
-        }
-        
-        .bio-content {
-          max-width: 800px;
-          margin: 0 auto;
-          text-align: center;
-        }
-        
-        .bio-content h2 {
-          font-size: 2.5rem;
-          margin-bottom: 2rem;
-        }
-        
-        .bio-text {
-          font-size: 1.1rem;
-          line-height: 1.7;
-          margin-bottom: 2.5rem;
-          text-align: left;
-        }
-        
-        .bio-paragraph:first-letter {
-          font-size: 3.5rem;
-          line-height: 1;
-          font-weight: bold;
-          float: left;
-          margin-right: 0.5rem;
-          color: var(--color-primary); /* Using CSS variable */
-        }
-        
-        .bio-cta {
-          margin-top: 2rem;
-        }
-        
-        .btn-primary {
-          background: var(--color-primary); /* Using CSS variable */
-          color: var(--color-background); /* Ensure contrast */
-          border: none;
-          padding: 0.75rem 2rem;
-          font-weight: 600;
-          border-radius: 30px;
-          cursor: pointer;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          text-decoration: none;
-          display: inline-block;
-        }
-        
-        .btn-primary:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 15px color-mix(in srgb, var(--color-primary) 30%, transparent); /* Shadow with primary color */
-          background-color: color-mix(in srgb, var(--color-primary) 85%, black); /* Darker shade on hover */
-        }
-        
-        .latest-news-section {
-          padding: 5rem 0;
-          background-color: rgba(0, 0, 0, 0.3);
-          position: relative;
-          overflow: hidden;
-        }
-        
         .section-header {
           display: flex;
           justify-content: space-between;
@@ -839,295 +538,392 @@ export default function Home() {
           flex-wrap: wrap;
           gap: 1rem;
         }
-        
-        .section-header .section-title {
-          margin-bottom: 0;
-        }
-        
+
         .view-all-link {
           display: flex;
           align-items: center;
-          color: var(--color-primary); /* Using CSS variable */
-          font-weight: 600;
-          text-decoration: none;
-          font-size: 1.1rem;
-          transition: opacity 0.2s ease;
           gap: 0.5rem;
-        }
-        
-        .view-all-link:hover {
-          opacity: 0.8;
-        }
-        
-        .arrow-icon {
+          color: var(--color-primary);
+          font-weight: 600;
           font-size: 0.9rem;
-          transition: transform 0.2s ease;
+          text-decoration: none;
+          transition: gap 0.3s ease;
         }
-        
-        .view-all-link:hover .arrow-icon {
-          transform: translateX(4px);
+        .view-all-link:hover { gap: 0.75rem; }
+
+        /* === PROMO SECTION === */
+        .promo-section {
+          background: #0d0d0d;
         }
-          .blog-posts-grid {
+
+        .promo-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
           gap: 1.5rem;
         }
-        
-        .blog-card {
-          background-color: #111;
-          border-radius: 8px;
+
+        .promo-card {
+          background: #141414;
+          border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          height: 100%;
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          transition: border-color 0.3s ease;
+        }
+        .promo-card:hover { border-color: rgba(240, 180, 41, 0.15); }
+
+        .promo-video-wrap {
+          border-radius: 12px 12px 0 0;
+          overflow: hidden;
+        }
+
+        .promo-info, .show-info {
+          padding: 1.5rem;
+        }
+
+        .promo-badge {
+          display: inline-block;
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #ff3c00;
+          background: rgba(255, 60, 0, 0.1);
+          padding: 0.25rem 0.6rem;
+          border-radius: 4px;
+          margin-bottom: 0.75rem;
+        }
+        .live-badge-bg { color: var(--color-primary); background: rgba(240, 180, 41, 0.1); }
+
+        .promo-title {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: #fff;
+          margin-bottom: 0.75rem;
+          line-height: 1.2;
+        }
+
+        .live-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #ff3c00;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 1rem;
+        }
+
+        .pulse-dot {
+          width: 8px; height: 8px;
+          background: #ff3c00;
+          border-radius: 50%;
+          animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,60,0,0.5); }
+          50% { box-shadow: 0 0 0 6px rgba(255,60,0,0); }
+        }
+
+        .countdown-row {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          margin-bottom: 1rem;
+        }
+        .cd-unit { display: flex; flex-direction: column; align-items: center; }
+        .cd-val {
+          font-family: var(--font-heading);
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #fff;
+          background: rgba(0,0,0,0.3);
+          border-radius: 6px;
+          padding: 0.2rem 0.5rem;
+          min-width: 2.5rem;
+          text-align: center;
+        }
+        .cd-label { font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-top: 0.15rem; }
+        .cd-sep { font-size: 1.2rem; color: rgba(255,255,255,0.2); margin: 0 0.15rem; }
+
+        .promo-cta {
+          font-size: 0.8rem;
+          margin-top: 0.5rem;
+        }
+
+        /* Show card */
+        .show-card { position: relative; }
+        .show-image-wrap {
+          position: relative;
+          height: 220px;
+          overflow: hidden;
+        }
+        .show-image-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(20,20,20,0.95) 0%, transparent 60%);
+        }
+
+        .show-details {
           display: flex;
           flex-direction: column;
+          gap: 0.35rem;
+          margin-bottom: 1rem;
         }
-        
-        .blog-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        .show-details p {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: rgba(255,255,255,0.6);
+          margin: 0;
         }
-        
-        .blog-card-inner {
+        .show-city {
+          color: var(--color-primary) !important;
+          font-weight: 600;
+        }
+        .show-details :global(.detail-icon) {
+          font-size: 0.75rem;
+          color: var(--color-primary);
+          flex-shrink: 0;
+        }
+
+        /* === STORIES SECTION === */
+        .stories-section {
+          background: #0a0a0a;
+        }
+
+        .stories-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+          gap: 1.5rem;
+        }
+
+        .story-card {
+          background: #141414;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.04);
+          transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        .story-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(240,180,41,0.12);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .story-video-wrap {
+          border-radius: 12px 12px 0 0;
+          overflow: hidden;
+        }
+
+        .story-image-link {
           display: flex;
           flex-direction: column;
-          height: 100%;
-          color: inherit;
           text-decoration: none;
+          color: inherit;
+          height: 100%;
         }
-        
-        .blog-image-container {
+
+        .story-thumb {
           position: relative;
           width: 100%;
-          padding-top: 75%;
-          overflow: hidden;
+          padding-top: 65%;
         }
-        
-        .blog-image {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.5s ease;
+
+        .story-body {
+          padding: 1.25rem;
         }
-        
-        .blog-card:hover .blog-image {
-          transform: scale(1.05);
+        .story-body h3 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 0.4rem;
         }
-        
-        .blog-content {
-          padding: 1rem;
-          display: flex;
-          flex-direction: column;
-          flex-grow: 1;
-          background: #181818;
-        }
-        
-        .blog-meta {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.8rem;
-          color: #999;
-          margin-bottom: 0.5rem;
-        }
-        
-        .blog-date {
-          color: var(--color-primary);
-        }
-        
-        .blog-title {
-          margin: 0 0 0.5rem;
-          font-size: 1.2rem;
-          line-height: 1.3;
-          font-weight: 600;
+        .story-body p {
+          font-size: 0.85rem;
+          color: rgba(255,255,255,0.55);
+          margin: 0;
+          line-height: 1.5;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
-        .blog-excerpt {
+
+        .story-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin-top: 0.75rem;
+          color: var(--color-primary);
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-decoration: none;
+          transition: gap 0.2s ease;
+        }
+        .story-link:hover { gap: 0.65rem; }
+
+        /* === BIO SECTION === */
+        .bio-section {
+          background: linear-gradient(180deg, #0d0d0d 0%, #111 100%);
+        }
+
+        .bio-content {
+          max-width: 780px;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .bio-text {
+          font-size: 1.05rem;
+          line-height: 1.8;
+          color: rgba(255,255,255,0.7);
+          text-align: left;
+          margin-bottom: 2rem;
+        }
+
+        .bio-paragraph:first-letter {
+          font-size: 3.5rem;
+          line-height: 1;
+          font-weight: 900;
+          float: left;
+          margin-right: 0.5rem;
+          color: var(--color-primary);
+          font-family: var(--font-heading);
+        }
+
+        .bio-ctas {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        /* === NEWS SECTION === */
+        .news-section {
+          background: #0a0a0a;
+        }
+
+        .news-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+          gap: 1.5rem;
+        }
+
+        .news-card {
+          background: #141414;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.04);
+          transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        .news-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(240,180,41,0.12);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .news-card-inner {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .news-image {
+          position: relative;
+          width: 100%;
+          padding-top: 60%;
+          overflow: hidden;
+        }
+        .news-image-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, #141414 0%, transparent 50%);
+        }
+        .news-card:hover .news-image img {
+          transform: scale(1.05);
+        }
+        .news-image :global(img) {
+          transition: transform 0.5s ease;
+        }
+
+        .news-body {
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+        }
+
+        .news-meta {
+          display: flex;
+          gap: 1rem;
+          font-size: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+        .news-date { color: var(--color-primary); font-weight: 600; }
+        .news-author { color: rgba(255,255,255,0.35); }
+
+        .news-title {
+          font-size: 1.15rem;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 0.5rem;
+          line-height: 1.3;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .news-excerpt {
+          font-size: 0.85rem;
+          color: rgba(255,255,255,0.5);
+          line-height: 1.5;
           margin: 0 0 auto;
-          font-size: 0.9rem;
-          line-height: 1.4;
-          color: #ccc;
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          flex-grow: 1;
         }
-        
-        .read-more-link {
-          display: inline-block;
+
+        .read-more {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
           margin-top: 1rem;
           color: var(--color-primary);
-          font-weight: 500;
-          text-decoration: none;
-          font-size: 0.9rem;
-          transition: color 0.2s ease;
-        }
-        
-        .read-more-link:hover {
-          color: #ff6833;
-          text-decoration: underline;
-        }
-        
-        .read-more-icon {
           font-size: 0.8rem;
-          transition: transform 0.2s ease;
+          font-weight: 600;
+          transition: gap 0.2s ease;
         }
-          .blog-card:hover .read-more-icon {
-          transform: translateX(4px);
-        }
-        
-        /* Mobile responsive styles for blog section */
-        @media (max-width: 992px) {
-          .blog-posts-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .blog-posts-grid {
+        .news-card:hover .read-more { gap: 0.65rem; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+          .promo-grid,
+          .stories-grid,
+          .news-grid {
             grid-template-columns: 1fr;
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
           }
-          
-          .blog-content {
-            padding: 1.5rem;
-            text-align: center;
+        }
+        @media (max-width: 768px) {
+          .promo-grid,
+          .stories-grid,
+          .news-grid {
+            max-width: 480px;
           }
-          
-          .blog-title {
-            font-size: 1.1rem;
-            line-height: 1.4;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-          }
-          
-          .blog-excerpt {
-            font-size: 0.85rem;
-            line-height: 1.4;
-            text-align: left;
-          }
-          
-          .blog-meta {
-            font-size: 0.75rem;
+
+          .bio-ctas {
             flex-direction: column;
-            gap: 0.25rem;
-            text-align: center;
+            align-items: center;
           }
-          
-          .read-more-link {
-            font-size: 0.85rem;
-            margin-top: 0.75rem;
-          }
-        }
-        
-        /* Additional styles for premiere countdown */
-        .premiere-time-container {
-          margin: 1rem 0;
-          padding: 0.75rem;
-          border-radius: 6px;
-          background-color: rgba(0, 0, 0, 0.2);
-          text-align: center;
-        }
-        
-        .premiere-label {
-          font-size: 0.9rem;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 0.5rem;
-          color: #ccc;
-        }
-        
-        .countdown-timer {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 0.25rem;
-          font-family: var(--font-mono, monospace);
-        }
-        
-        .time-unit {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        
-        .time-value {
-          font-size: 1.8rem;
-          font-weight: 700;
-          color: var(--color-text);
-          background: rgba(0, 0, 0, 0.3);
-          border-radius: 4px;
-          padding: 0.25rem 0.5rem;
-          min-width: 2.5rem;
-          display: inline-block;
-        }
-        
-        .time-label {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          color: #999;
-          margin-top: 0.25rem;
-        }
-        
-        .time-separator {
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin: 0 0.25rem;
-          align-self: flex-start;
-          padding-top: 0.25rem;
-        }
-        
-        .live-now {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          font-size: 1.2rem;
-          font-weight: 700;
-          color: var(--color-primary);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-        
-        .pulse-dot {
-          width: 10px;
-          height: 10px;
-          background-color: var(--color-primary);
-          border-radius: 50%;
-          display: inline-block;
-          animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-          0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(255, 60, 0, 0.7);
-          }
-          
-          70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 6px rgba(255, 60, 0, 0);
-          }
-          
-          100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(255, 60, 0, 0);
-          }
-        }
-        
-        .premiere-time-container.live {
-          background-color: rgba(255, 60, 0, 0.1);
-          border: 1px solid rgba(255, 60, 0, 0.3);
         }
       `}</style>
     </>

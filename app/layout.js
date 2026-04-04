@@ -6,11 +6,15 @@ import Analytics from '@/components/Analytics';
 import CookieConsent from '@/components/CookieConsent';
 import StickySocialFollow from '@/components/StickySocialFollow';
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export const metadata = {
   title: 'BNG NappSakk - EPK',
   description: 'Independent Hip-Hop Artist | Live Performer | Cultural Storyteller',
   metadataBase: new URL('https://bngmusicentertainment.com'),
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
   charset: 'utf-8',
   icons: {
@@ -67,13 +71,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" style={{ scrollBehavior: 'smooth' }}>
       <body>
         <Analytics />
         <CookieConsent />
         <Navbar />
         <StickySocialFollow />
-        <main>{children}</main>
+        <main style={{ minHeight: '100vh' }}>{children}</main>
         <Footer />
       </body>
     </html>

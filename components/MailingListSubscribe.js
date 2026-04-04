@@ -112,7 +112,7 @@ export default function MailingListSubscribe() {
           {!isExpanded ? (
             <div className="simple-form">
               <div className="input-wrapper">
-                <FaEnvelope className="input-icon" />
+                <span className="input-icon-wrap"><FaEnvelope /></span>
                 <input
                   type="email"
                   value={email}
@@ -273,33 +273,41 @@ export default function MailingListSubscribe() {
         }
         
         .simple-form {
-          display: flex;
-          flex-direction: column;
+          display: grid;
           gap: 0.75rem;
         }
         
         .input-wrapper {
           position: relative;
+          width: 100%;
         }
         
-        .input-icon {
+        .input-icon-wrap {
           position: absolute;
           left: 1rem;
           top: 50%;
           transform: translateY(-50%);
           color: #888;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          pointer-events: none;
+          font-size: 1rem;
         }
         
         .subscribe-input {
           width: 100%;
+          display: block;
           border: none;
-          padding: 0.85rem 1rem;
-          padding-left: 2.5rem;
+          padding: 0.85rem 1rem 0.85rem 2.5rem;
           font-size: 1rem;
           background: rgba(255, 255, 255, 0.9);
-          border-radius: 8px;
+          color: #111;
+          border-radius: 12px;
           outline: none;
           transition: all 0.2s ease;
+          box-sizing: border-box;
+          min-height: 54px;
         }
         
         .expanded-form .subscribe-input {
@@ -316,6 +324,12 @@ export default function MailingListSubscribe() {
           gap: 0.75rem;
           justify-content: flex-end;
         }
+
+        .simple-form .button-group {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+        }
         
         .button-group.expanded {
           margin-top: 1rem;
@@ -325,11 +339,16 @@ export default function MailingListSubscribe() {
         .subscribe-button {
           padding: 0.75rem 1.25rem;
           font-weight: 600;
-          border-radius: 8px;
+          border-radius: 12px;
           cursor: pointer;
           border: none;
           transition: all 0.2s ease;
           font-size: 0.95rem;
+          min-height: 54px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          white-space: nowrap;
         }
         
         .subscribe-button.primary {
@@ -510,19 +529,20 @@ export default function MailingListSubscribe() {
           .form-fields {
             grid-template-columns: 1fr 1fr;
           }
-          
-          .simple-form {
-            flex-direction: row;
-          }
-          
-          .input-wrapper {
-            flex: 1;
+
+          .button-group {
+            flex-shrink: 0;
           }
         }
         
         @media (max-width: 576px) {
           .button-group {
             flex-direction: column;
+          }
+          
+          .subscribe-button {
+            width: 100%;
+            text-align: center;
           }
           
           .preferences-grid {

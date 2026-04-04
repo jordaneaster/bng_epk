@@ -27,7 +27,7 @@ async function fetchImages() {
     .list(folderPath, {
       limit: 100, // Adjust limit as needed
       offset: 0,
-      sortBy: { column: 'name', order: 'asc' },
+      sortBy: { column: 'created_at', order: 'desc' },
     });
 
   if (listError) {
@@ -59,11 +59,62 @@ export default async function Photos() {
   const photos = await fetchImages();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Photo Gallery</h1>
-      <div className={`max-w-screen-xl mx-auto ${styles.galleryContainer}`}>
-        <ImageGrid images={photos} />
-      </div>
-    </div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .photos-hero {
+          padding: 8rem 0 3rem;
+          text-align: center;
+          background: radial-gradient(ellipse at top, rgba(240, 180, 41, 0.08), transparent 60%);
+        }
+        .photos-hero .label {
+          text-transform: uppercase;
+          letter-spacing: 3px;
+          font-size: 0.85rem;
+          color: var(--color-primary, #f0b429);
+          margin-bottom: 1rem;
+        }
+        .photos-hero h1 {
+          font-size: clamp(2rem, 5vw, 3.5rem);
+          font-weight: 800;
+          background: linear-gradient(135deg, #f0b429, #f7d070);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 0.75rem;
+        }
+        .photos-hero .subtitle {
+          color: var(--color-text-muted, #a0a0a0);
+          font-size: 1.1rem;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        .gallery-section {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+          .photos-hero { padding: 6.5rem 0 2rem; }
+        }
+        @media (max-width: 480px) {
+          .photos-hero h1 { font-size: 2rem; }
+        }
+      ` }} />
+
+      <section className="photos-hero">
+        <div className="container">
+          <p className="label">Gallery</p>
+          <h1>Photo Gallery</h1>
+          <p className="subtitle">Official photos, press images & behind the scenes</p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className={`gallery-section ${styles.galleryContainer}`}>
+            <ImageGrid images={photos} />
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

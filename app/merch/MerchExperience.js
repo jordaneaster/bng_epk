@@ -14,6 +14,15 @@ const COLLAGE_IMAGE =
 
 const MERCH_ITEMS = [
   {
+    id: "street-chemist-tee",
+    name: "Limited Run: Street Chemist Tee",
+    price: 68,
+    tag: "LIMITED EDITION",
+    description: "This isn't just a T-shirt — it's the mindset. The Process Tee captures the raw energy behind Blenderz N Glovez. Built for those who understand the grind, the chaos, and the discipline it takes to turn nothing into something. Featuring a gritty, cinematic street-lab graphic, this piece represents focus under pressure — where every move matters and every detail counts.",
+    limitedQty: 75,
+    soldOut: false,
+  },
+  {
     id: "upper-left-tee",
     name: "BNG Blender Tee",
     price: 46,
@@ -97,6 +106,7 @@ const MERCH_ITEMS = [
 ];
 
 const HOTSPOTS = [
+  { id: "spot-street-chemist", itemId: "street-chemist-tee", x: 45, y: 15, label: "Street Chemist Tee" },
   { id: "spot-upper-left-tee", itemId: "upper-left-tee", x: 12, y: 17, label: "Upper Tee" },
   { id: "spot-hoodie", itemId: "cook-mode-hoodie", x: 79, y: 22, label: "Hoodie" },
   { id: "spot-cap", itemId: "lab-cap", x: 62, y: 24, label: "Cap" },
@@ -161,6 +171,7 @@ function HotspotOverlay({
       style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
+      onClick={(e) => e.stopPropagation()}
     >
       <button
         type="button"
@@ -203,10 +214,16 @@ function HotspotOverlay({
 
 export default function MerchExperience() {
   const [hoveredSpotId, setHoveredSpotId] = useState("");
-  const [selectedItemId, setSelectedItemId] = useState("cook-mode-hoodie");
+  const [selectedItemId, setSelectedItemId] = useState("street-chemist-tee");
   const [queueEmail, setQueueEmail] = useState("");
   const [queueStatus, setQueueStatus] = useState("");
   const [queueSubmitting, setQueueSubmitting] = useState(false);
+  const [highlightQueue, setHighlightQueue] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [collageLightboxOpen, setCollageLightboxOpen] = useState(false);
+  const [lbZoom, setLbZoom] = useState(1);
+  const [lbOffset, setLbOffset] = useState({ x: 0, y: 0 });
+  const [lbDragStart, setLbDragStart] = useState(null);
   const [dropEndsAt] = useState(() => Date.now() + 5 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000);
   const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(dropEndsAt));
 
@@ -216,6 +233,30 @@ export default function MerchExperience() {
     }, 1000);
     return () => clearInterval(interval);
   }, [dropEndsAt]);
+
+  useEffect(() => {
+    if (!highlightQueue) return;
+    const timer = setTimeout(() => setHighlightQueue(false), 4000);
+    return () => clearTimeout(timer);
+  }, [highlightQueue]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handler = (e) => { if (e.key === 'Escape') setLightboxOpen(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightboxOpen]);
+
+  useEffect(() => {
+    if (!collageLightboxOpen) return;
+    const handler = (e) => { if (e.key === 'Escape') setCollageLightboxOpen(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [collageLightboxOpen]);
+
+  useEffect(() => {
+    if (!lightboxOpen && !collageLightboxOpen) { setLbZoom(1); setLbOffset({ x: 0, y: 0 }); setLbDragStart(null); }
+  }, [lightboxOpen, collageLightboxOpen]);
 
   const activeItemId = hoveredSpotId
     ? HOTSPOTS.find((spot) => spot.id === hoveredSpotId)?.itemId
@@ -315,6 +356,71 @@ export default function MerchExperience() {
         </div>
       </section>
 
+      {/* FEATURED STREET CHEMIST TEE */}
+      <section className="bg-[#000000] border-b border-[#d6c8a5]/15 py-16 sm:py-20">
+        <div className="container px-6 sm:px-10">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="flex flex-col gap-10 sm:flex-row sm:items-center sm:gap-16">
+              <div className="flex-1 py-4">
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-[#d6c8a5]">LIMITED EDITION | Only 75 Available</p>
+                <h2 className="mb-5 [font-family:var(--font-heading)] text-3xl font-black uppercase leading-tight tracking-tight text-[#f8f4eb] sm:text-4xl">
+                  Limited Run:<br />Street Chemist Tee
+                </h2>
+                <p className="mb-7 text-sm leading-relaxed text-[#d6c8a5] max-w-md">
+                  This isn&apos;t just a T-shirt — it&apos;s the mindset. The Process Tee captures the raw energy behind Blenderz N Glovez. Built for those who understand the grind, the chaos, and the discipline it takes to turn nothing into something.
+                </p>
+                <div className="flex gap-6 flex-wrap mb-7">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.1em] text-[#d6c8a5] mb-1">Price</p>
+                    <p className="text-2xl font-black text-[#f8f4eb]">$68</p>
+                  </div>
+                  <div className="h-12 w-px bg-[#d6c8a5]/20" />
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.1em] text-[#d6c8a5] mb-1">Stock</p>
+                    <p className="text-2xl font-black text-[#f8f4eb]">75 Units</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedItemId("street-chemist-tee");
+                    setHighlightQueue(true);
+                    const formEl = document.getElementById('presale-queue-form');
+                    formEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#e2d1a8] px-6 py-3 text-xs font-black uppercase tracking-[0.12em] text-[#151515] transition hover:bg-[#efe0bb]"
+                >
+                  Enter Presale Queue
+                </button>
+              </div>
+              <div
+                className="flex-1 relative rounded-xl border border-[#d6c8a5]/15 overflow-hidden group cursor-zoom-in"
+                style={{ minHeight: '480px', background: '#000000' }}
+                onClick={() => setLightboxOpen(true)}
+                role="button"
+                tabIndex={0}
+                aria-label="Zoom in to inspect the Street Chemist Tee"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightboxOpen(true); }}
+              >
+                <Image
+                  src="https://rzdoygryvifvcmhhbiaq.supabase.co/storage/v1/object/public/gallery-images/bng/merch/Urban%20style%20with%20edgy%20design.png"
+                  alt="Limited Run: Street Chemist Tee"
+                  fill
+                  style={{ objectFit: 'contain', padding: '1.5rem', filter: 'brightness(0.78) contrast(1.05)' }}
+                  sizes="(max-width: 768px) 100vw, 550px"
+                />
+                {/* Vignette overlay */}
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.75) 100%)', pointerEvents: 'none', zIndex: 1 }} />
+                {/* Zoom hint badge */}
+                <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#d6c8a5] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                  Inspect
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="collage-presale" className="container py-10 sm:py-14">
         <div className="mx-auto grid w-full max-w-[1500px] gap-6 lg:grid-cols-[2.2fr_1fr]">
           <div className="rounded-2xl border border-white/10 bg-[#131313] p-4 sm:p-5">
@@ -329,7 +435,14 @@ export default function MerchExperience() {
                 style={{ backgroundImage: GRAIN_TEXTURE, backgroundSize: "120px 120px" }}
               />
 
-              <div className="relative mx-auto aspect-[2/3] w-full max-w-[760px] bg-[#0e0e0e]">
+              <div
+                className="group relative mx-auto aspect-[2/3] w-full max-w-[760px] cursor-zoom-in bg-[#0e0e0e]"
+                onClick={() => setCollageLightboxOpen(true)}
+                role="button"
+                tabIndex={0}
+                aria-label="Zoom in to inspect the full merch collage"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setCollageLightboxOpen(true); }}
+              >
                 <Image
                   src={COLLAGE_IMAGE}
                   alt="BNG merch interactive collage"
@@ -338,6 +451,11 @@ export default function MerchExperience() {
                   className="object-contain"
                   priority
                 />
+                {/* Zoom hint badge */}
+                <div className="pointer-events-none absolute bottom-3 right-3 z-30 flex items-center gap-1.5 rounded-full bg-black/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#d6c8a5] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                  Inspect
+                </div>
 
                 {HOTSPOTS.map((spot) => {
                   const item = MERCH_ITEMS.find((entry) => entry.id === spot.itemId);
@@ -396,7 +514,13 @@ export default function MerchExperience() {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-[#d6c8a5]/25 bg-[#121212] p-6 sm:p-7">
+          <aside id="presale-queue-form" className={`rounded-2xl border bg-[#121212] p-6 sm:p-7 transition-all duration-700 ${highlightQueue ? 'border-[#e2d1a8] shadow-[0_0_0_3px_rgba(226,209,168,0.25),0_0_40px_rgba(226,209,168,0.12)]' : 'border-[#d6c8a5]/25'}`}>
+            {highlightQueue && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#e2d1a8]/40 bg-[#e2d1a8]/10 px-4 py-3">
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#e2d1a8] text-[10px] font-black text-[#151515]">✓</span>
+                <p className="text-xs font-bold text-[#f2e8d2]">Street Chemist Tee selected — enter your email below to lock in your spot.</p>
+              </div>
+            )}
             <div className="rounded-xl border border-white/10 bg-[#161616] p-4 sm:p-5">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#d6c8a5]">Presale Queue</p>
               <h2 className="mt-3 [font-family:var(--font-heading)] text-2xl font-black uppercase tracking-tight text-[#f8f2e5] sm:text-[2rem]">
@@ -447,6 +571,186 @@ export default function MerchExperience() {
           </aside>
         </div>
       </section>
+
+      {/* COLLAGE LIGHTBOX MODAL */}
+      {collageLightboxOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex select-none items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => { if (!lbDragStart) setCollageLightboxOpen(false); }}
+          onWheel={(e) => {
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 0.3 : -0.3;
+            setLbZoom(prev => {
+              const next = Math.max(1, Math.min(8, prev + factor));
+              if (next <= 1) setLbOffset({ x: 0, y: 0 });
+              return next;
+            });
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setCollageLightboxOpen(false)}
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="Close lightbox"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          {lbZoom > 1 && (
+            <div className="absolute left-4 top-4 z-20 rounded-full bg-black/60 px-3 py-1.5 text-[11px] font-bold tracking-wider text-white/60">
+              {Math.round(lbZoom * 100)}%
+            </div>
+          )}
+          <div
+            className="overflow-hidden"
+            style={{
+              width: 'min(92vw, 700px)',
+              height: 'min(92vh, 1050px)',
+              cursor: lbZoom > 1 ? (lbDragStart ? 'grabbing' : 'grab') : 'zoom-in',
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={() => {
+              if (lbZoom > 1) { setLbZoom(1); setLbOffset({ x: 0, y: 0 }); }
+              else setLbZoom(3);
+            }}
+            onMouseDown={(e) => {
+              if (lbZoom > 1) { e.preventDefault(); setLbDragStart({ x: e.clientX - lbOffset.x, y: e.clientY - lbOffset.y }); }
+            }}
+            onMouseMove={(e) => {
+              if (lbDragStart) setLbOffset({ x: e.clientX - lbDragStart.x, y: e.clientY - lbDragStart.y });
+            }}
+            onMouseUp={() => setLbDragStart(null)}
+            onMouseLeave={() => setLbDragStart(null)}
+          >
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              transform: `translate(${lbOffset.x}px, ${lbOffset.y}px) scale(${lbZoom})`,
+              transformOrigin: 'center',
+              transition: lbDragStart ? 'none' : 'transform 0.15s ease',
+            }}>
+              <Image
+                src={COLLAGE_IMAGE}
+                alt="BNG merch collage — full view"
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="min(92vw, 700px)"
+                priority
+              />
+            </div>
+          </div>
+          <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => { const n = Math.max(1, +(prev - 0.5).toFixed(1)); if (n <= 1) setLbOffset({ x: 0, y: 0 }); return n; }); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom out"
+            >−</button>
+            <span className="min-w-[4rem] text-center text-[11px] font-bold uppercase tracking-widest text-white/50">
+              {Math.round(lbZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => +(Math.min(8, prev + 0.5)).toFixed(1)); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom in"
+            >+</button>
+          </div>
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] uppercase tracking-[0.2em] text-white/25">
+            Scroll or +/− to zoom &middot; Double-click to toggle &middot; Drag to pan &middot; Esc to close
+          </p>
+        </div>
+      )}
+
+      {/* LIGHTBOX MODAL */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex select-none items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => { if (!lbDragStart) setLightboxOpen(false); }}
+          onWheel={(e) => {
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 0.3 : -0.3;
+            setLbZoom(prev => {
+              const next = Math.max(1, Math.min(8, prev + factor));
+              if (next <= 1) setLbOffset({ x: 0, y: 0 });
+              return next;
+            });
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="Close lightbox"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          {lbZoom > 1 && (
+            <div className="absolute left-4 top-4 z-20 rounded-full bg-black/60 px-3 py-1.5 text-[11px] font-bold tracking-wider text-white/60">
+              {Math.round(lbZoom * 100)}%
+            </div>
+          )}
+          <div
+            className="overflow-hidden"
+            style={{
+              width: 'min(90vw, 820px)',
+              height: 'min(88vh, 820px)',
+              cursor: lbZoom > 1 ? (lbDragStart ? 'grabbing' : 'grab') : 'zoom-in',
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={() => {
+              if (lbZoom > 1) { setLbZoom(1); setLbOffset({ x: 0, y: 0 }); }
+              else setLbZoom(3);
+            }}
+            onMouseDown={(e) => {
+              if (lbZoom > 1) { e.preventDefault(); setLbDragStart({ x: e.clientX - lbOffset.x, y: e.clientY - lbOffset.y }); }
+            }}
+            onMouseMove={(e) => {
+              if (lbDragStart) setLbOffset({ x: e.clientX - lbDragStart.x, y: e.clientY - lbDragStart.y });
+            }}
+            onMouseUp={() => setLbDragStart(null)}
+            onMouseLeave={() => setLbDragStart(null)}
+          >
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              transform: `translate(${lbOffset.x}px, ${lbOffset.y}px) scale(${lbZoom})`,
+              transformOrigin: 'center',
+              transition: lbDragStart ? 'none' : 'transform 0.15s ease',
+            }}>
+              <Image
+                src="https://rzdoygryvifvcmhhbiaq.supabase.co/storage/v1/object/public/gallery-images/bng/merch/Urban%20style%20with%20edgy%20design.png"
+                alt="Limited Run: Street Chemist Tee — full view"
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="min(90vw, 820px)"
+                priority
+              />
+            </div>
+          </div>
+          <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => { const n = Math.max(1, +(prev - 0.5).toFixed(1)); if (n <= 1) setLbOffset({ x: 0, y: 0 }); return n; }); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom out"
+            >−</button>
+            <span className="min-w-[4rem] text-center text-[11px] font-bold uppercase tracking-widest text-white/50">
+              {Math.round(lbZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => +(Math.min(8, prev + 0.5)).toFixed(1)); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom in"
+            >+</button>
+          </div>
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] uppercase tracking-[0.2em] text-white/25">
+            Scroll or +/− to zoom &middot; Double-click to toggle &middot; Drag to pan &middot; Esc to close
+          </p>
+        </div>
+      )}
     </div>
   );
 }

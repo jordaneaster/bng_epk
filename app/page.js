@@ -25,6 +25,10 @@ export default function Home() {
   const [premiereVideo, setPremiereVideo] = useState(null); // New state for premiere video
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lbZoom, setLbZoom] = useState(1);
+  const [lbOffset, setLbOffset] = useState({ x: 0, y: 0 });
+  const [lbDragStart, setLbDragStart] = useState(null);
 
   // Format date for blog posts
   function formatDate(dateString) {
@@ -111,6 +115,17 @@ export default function Home() {
     // Clean up the interval on component unmount
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handler = (e) => { if (e.key === 'Escape') setLightboxOpen(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightboxOpen]);
+
+  useEffect(() => {
+    if (!lightboxOpen) { setLbZoom(1); setLbOffset({ x: 0, y: 0 }); setLbDragStart(null); }
+  }, [lightboxOpen]);
   
   // Function to format countdown time
   const formatCountdown = (premiereDate) => {
@@ -291,6 +306,206 @@ export default function Home() {
 
       {/* === CREDIBILITY BANNER === */}
       <CredibilityBanner />
+
+      {/* === STREETWEAR DIVISION HERO SECTION === */}
+      <section className="relative overflow-hidden border-t border-b border-white/10 mt-20 sm:mt-28 bg-[radial-gradient(circle_at_30%_20%,rgba(214,200,165,0.18),transparent_42%),radial-gradient(circle_at_75%_70%,rgba(214,200,165,0.1),transparent_45%),linear-gradient(180deg,#111_0%,#0a0a0a_100%)]">
+        <div className="container relative z-10 py-20 sm:py-24">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="mb-4 text-xs uppercase tracking-[0.24em] text-[#d6c8a5]"
+          >
+            BNG Music Entertainment | Streetwear Division
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.05 }}
+            className="max-w-4xl [font-family:var(--font-heading)] text-4xl font-black uppercase leading-[0.95] tracking-tight text-[#f8f4eb] sm:text-5xl lg:text-7xl"
+          >
+            WE DON&apos;T DROP MUSIC. WE COOK IT.
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.15 }}
+            className="mt-4 max-w-3xl [font-family:var(--font-heading)] text-xl font-bold uppercase tracking-wide text-[#ded2b5] sm:text-2xl"
+          >
+            EVERYTHING THE LIGHT TOUCHES IS OURS.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* === FEATURED LIMITED EDITION MERCH === */}
+      <section className="featured-merch-section section" style={{
+        background: 'linear-gradient(135deg, rgba(214, 200, 165, 0.08) 0%, rgba(214, 200, 165, 0.03) 100%), linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%)',
+        borderTop: '1px solid rgba(214, 200, 165, 0.15)',
+        borderBottom: '1px solid rgba(214, 200, 165, 0.15)',
+      }}>
+        <div className="container">
+          <motion.div
+            className="featured-merch-content"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="featured-merch-info"
+            >
+              <span className="featured-badge" style={{
+                display: 'inline-block',
+                fontSize: '0.7rem',
+                fontWeight: '900',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: '#d6c8a5',
+                marginBottom: '1rem',
+                padding: '0.5rem 1rem',
+                border: '1px solid #d6c8a5',
+                borderRadius: '100px',
+                background: 'rgba(214, 200, 165, 0.1)',
+              }}>
+                Limited Edition | Only 75 Available
+              </span>
+              
+              <h2 style={{
+                fontSize: 'clamp(1.8rem, 5vw, 3rem)',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: '900',
+                letterSpacing: '-0.02em',
+                lineHeight: '1.1',
+                marginBottom: '1.5rem',
+                color: '#f8f4eb',
+              }}>
+                Limited Run: <br /> Street Chemist Tee
+              </h2>
+              
+              <p style={{
+                fontSize: '1.1rem',
+                lineHeight: '1.6',
+                color: '#d6c8a5',
+                marginBottom: '1.5rem',
+                maxWidth: '500px',
+              }}>
+                This isn't just a T-shirt — it's the mindset. The Process Tee captures the raw energy behind Blenderz N Glovez. Built for those who understand the grind, the chaos, and the discipline it takes to turn nothing into something.
+              </p>
+              
+              <div style={{
+                display: 'flex',
+                gap: '2rem',
+                alignItems: 'center',
+                marginBottom: '2rem',
+                flexWrap: 'wrap',
+              }}>
+                <div>
+                  <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d6c8a5', marginBottom: '0.5rem' }}>Price</p>
+                  <p style={{ fontSize: '2rem', fontWeight: '900', color: '#f8f4eb' }}>$68</p>
+                </div>
+                <div style={{ height: '40px', width: '1px', background: 'rgba(214, 200, 165, 0.2)' }} />
+                <div>
+                  <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#d6c8a5', marginBottom: '0.5rem' }}>Stock</p>
+                  <p style={{ fontSize: '1.3rem', fontWeight: '900', color: '#f8f4eb' }}>75 Units</p>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <Link
+                  href="/merch"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '1rem 2rem',
+                    background: '#e2d1a8',
+                    color: '#151515',
+                    fontSize: '0.9rem',
+                    fontWeight: '900',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#efe0bb'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#e2d1a8'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                >
+                  Enter Presale Queue <FaArrowRight style={{ fontSize: '0.75rem' }} />
+                </Link>
+                <Link
+                  href="/merch"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '1rem 2rem',
+                    background: 'transparent',
+                    color: '#d6c8a5',
+                    fontSize: '0.9rem',
+                    fontWeight: '900',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    borderRadius: '10px',
+                    border: '2px solid #d6c8a5',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(214, 200, 165, 0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  View All Merch
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="featured-merch-visual group cursor-zoom-in"
+              style={{
+                position: 'relative',
+                height: '600px',
+                background: '#000000',
+                borderRadius: '12px',
+                border: '1px solid rgba(214, 200, 165, 0.15)',
+                overflow: 'hidden',
+              }}
+              onClick={() => setLightboxOpen(true)}
+              role="button"
+              tabIndex={0}
+              aria-label="Zoom in to inspect the Street Chemist Tee"
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightboxOpen(true); }}
+            >
+              <Image
+                src="https://rzdoygryvifvcmhhbiaq.supabase.co/storage/v1/object/public/gallery-images/bng/merch/Urban%20style%20with%20edgy%20design.png"
+                alt="Limited Run: Street Chemist Tee"
+                fill
+                style={{ objectFit: 'contain', padding: '2rem', filter: 'brightness(0.78) contrast(1.05)' }}
+                sizes="(max-width: 768px) 100vw, 500px"
+                priority
+              />
+              {/* Vignette overlay to blend edges */}
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%)', pointerEvents: 'none' }} />
+              {/* Zoom hint badge */}
+              <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#d6c8a5] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                Inspect
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* === VIDEO PREMIERE + NEXT SHOW === */}
       {(premiereVideo || nextShow) && (
@@ -518,6 +733,96 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* LIGHTBOX MODAL */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex select-none items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => { if (!lbDragStart) setLightboxOpen(false); }}
+          onWheel={(e) => {
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 0.3 : -0.3;
+            setLbZoom(prev => {
+              const next = Math.max(1, Math.min(8, prev + factor));
+              if (next <= 1) setLbOffset({ x: 0, y: 0 });
+              return next;
+            });
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+            aria-label="Close lightbox"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          {lbZoom > 1 && (
+            <div className="absolute left-4 top-4 z-20 rounded-full bg-black/60 px-3 py-1.5 text-[11px] font-bold tracking-wider text-white/60">
+              {Math.round(lbZoom * 100)}%
+            </div>
+          )}
+          <div
+            className="overflow-hidden"
+            style={{
+              width: 'min(90vw, 820px)',
+              height: 'min(88vh, 820px)',
+              cursor: lbZoom > 1 ? (lbDragStart ? 'grabbing' : 'grab') : 'zoom-in',
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={() => {
+              if (lbZoom > 1) { setLbZoom(1); setLbOffset({ x: 0, y: 0 }); }
+              else setLbZoom(3);
+            }}
+            onMouseDown={(e) => {
+              if (lbZoom > 1) { e.preventDefault(); setLbDragStart({ x: e.clientX - lbOffset.x, y: e.clientY - lbOffset.y }); }
+            }}
+            onMouseMove={(e) => {
+              if (lbDragStart) setLbOffset({ x: e.clientX - lbDragStart.x, y: e.clientY - lbDragStart.y });
+            }}
+            onMouseUp={() => setLbDragStart(null)}
+            onMouseLeave={() => setLbDragStart(null)}
+          >
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              transform: `translate(${lbOffset.x}px, ${lbOffset.y}px) scale(${lbZoom})`,
+              transformOrigin: 'center',
+              transition: lbDragStart ? 'none' : 'transform 0.15s ease',
+            }}>
+              <Image
+                src="https://rzdoygryvifvcmhhbiaq.supabase.co/storage/v1/object/public/gallery-images/bng/merch/Urban%20style%20with%20edgy%20design.png"
+                alt="Limited Run: Street Chemist Tee — full view"
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="min(90vw, 820px)"
+                priority
+              />
+            </div>
+          </div>
+          <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => { const n = Math.max(1, +(prev - 0.5).toFixed(1)); if (n <= 1) setLbOffset({ x: 0, y: 0 }); return n; }); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom out"
+            >−</button>
+            <span className="min-w-[4rem] text-center text-[11px] font-bold uppercase tracking-widest text-white/50">
+              {Math.round(lbZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLbZoom(prev => +(Math.min(8, prev + 0.5)).toFixed(1)); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xl text-white transition hover:bg-white/20"
+              aria-label="Zoom in"
+            >+</button>
+          </div>
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] uppercase tracking-[0.2em] text-white/25">
+            Scroll or +/− to zoom &middot; Double-click to toggle &middot; Drag to pan &middot; Esc to close
+          </p>
+        </div>
+      )}
 
       <style jsx>{`
         /* === SECTION DEFAULTS === */

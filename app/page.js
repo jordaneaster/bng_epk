@@ -394,7 +394,7 @@ export default function Home() {
                 marginBottom: '1.5rem',
                 maxWidth: '500px',
               }}>
-                This isn't just a T-shirt — it's the mindset. The Process Tee captures the raw energy behind Blenderz N Glovez. Built for those who understand the grind, the chaos, and the discipline it takes to turn nothing into something.
+                This isn&apos;t just a T-shirt — it&apos;s the mindset. The Process Tee captures the raw energy behind Blenderz N Glovez. Built for those who understand the grind, the chaos, and the discipline it takes to turn nothing into something.
               </p>
               
               <div style={{

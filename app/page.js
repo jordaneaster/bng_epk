@@ -507,91 +507,95 @@ export default function Home() {
         </div>
       </section>
 
-      {/* === VIDEO PREMIERE + NEXT SHOW === */}
-      {(premiereVideo || nextShow) && (
-        <section className="promo-section section">
-          <div className="container">
-            <motion.div
-              className="promo-grid"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-            >
-              {premiereVideo && (
-                <motion.div className="promo-card" variants={fadeInLeft}>
-                  <div className="promo-video-wrap">
-                    <VideoEmbed
-                      videoId={premiereVideo.video_id}
-                      platform={premiereVideo.medium || 'youtube'}
-                      title={premiereVideo.title}
-                    />
-                  </div>
-                  <div className="promo-info">
-                    <span className="promo-badge">Video Premiere</span>
-                    <h3 className="promo-title">{premiereVideo.title}</h3>
-                    {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? (
-                      <div className="live-badge">
-                        <span className="pulse-dot" /> Streaming Now
-                      </div>
-                    ) : (
-                      (() => {
-                        const countdown = formatCountdown(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null);
-                        return countdown && (
-                          <div className="countdown-row">
-                            <div className="cd-unit"><span className="cd-val">{countdown.hours}</span><span className="cd-label">hrs</span></div>
-                            <span className="cd-sep">:</span>
-                            <div className="cd-unit"><span className="cd-val">{countdown.minutes.toString().padStart(2, '0')}</span><span className="cd-label">min</span></div>
-                            <span className="cd-sep">:</span>
-                            <div className="cd-unit"><span className="cd-val">{countdown.seconds.toString().padStart(2, '0')}</span><span className="cd-label">sec</span></div>
-                          </div>
-                        );
-                      })()
-                    )}
-                    <a
-                      href={`https://www.youtube.com/watch?v=${premiereVideo.video_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn promo-cta"
-                    >
-                      <FaPlay style={{ fontSize: '0.7rem' }} />
-                      {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? 'Watch Now' : 'Watch Premiere'}
-                    </a>
-                  </div>
-                </motion.div>
-              )}
+      {/*
+        Deprecated: Video Premiere + Next Show section is disabled for now.
+        Keep this block for quick reactivation later.
 
-              {nextShow && (
-                <motion.div className="promo-card show-card" variants={fadeInRight}>
-                  <div className="show-image-wrap">
-                    <Image
-                      src={(nextShow.flyer_image || '/images/flyer-placeholder.jpg').trim()}
-                      alt={`BNG NappSakk at ${nextShow.venue}`}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    <div className="show-image-overlay" />
-                  </div>
-                  <div className="show-info">
-                    <span className="promo-badge live-badge-bg">Live Show</span>
-                    <h3 className="promo-title">{nextShow.title}</h3>
-                    <div className="show-details">
-                      <p><FaMapMarkerAlt className="detail-icon" /> {nextShow.venue}</p>
-                      <p><FaCalendarAlt className="detail-icon" /> {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
-                      {nextShow.time && <p><FaClock className="detail-icon" /> {nextShow.time}</p>}
-                      <p className="show-city">{nextShow.city}, {nextShow.state}</p>
+        {(premiereVideo || nextShow) && (
+          <section className="promo-section section">
+            <div className="container">
+              <motion.div
+                className="promo-grid"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                {premiereVideo && (
+                  <motion.div className="promo-card" variants={fadeInLeft}>
+                    <div className="promo-video-wrap">
+                      <VideoEmbed
+                        videoId={premiereVideo.video_id}
+                        platform={premiereVideo.medium || 'youtube'}
+                        title={premiereVideo.title}
+                      />
                     </div>
-                    <Link href="/live" className="btn promo-cta">
-                      Get Tickets <FaArrowRight style={{ fontSize: '0.75rem' }} />
-                    </Link>
-                  </div>
-                </motion.div>
-              )}
-            </motion.div>
-          </div>
-        </section>
-      )}
+                    <div className="promo-info">
+                      <span className="promo-badge">Video Premiere</span>
+                      <h3 className="promo-title">{premiereVideo.title}</h3>
+                      {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? (
+                        <div className="live-badge">
+                          <span className="pulse-dot" /> Streaming Now
+                        </div>
+                      ) : (
+                        (() => {
+                          const countdown = formatCountdown(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null);
+                          return countdown && (
+                            <div className="countdown-row">
+                              <div className="cd-unit"><span className="cd-val">{countdown.hours}</span><span className="cd-label">hrs</span></div>
+                              <span className="cd-sep">:</span>
+                              <div className="cd-unit"><span className="cd-val">{countdown.minutes.toString().padStart(2, '0')}</span><span className="cd-label">min</span></div>
+                              <span className="cd-sep">:</span>
+                              <div className="cd-unit"><span className="cd-val">{countdown.seconds.toString().padStart(2, '0')}</span><span className="cd-label">sec</span></div>
+                            </div>
+                          );
+                        })()
+                      )}
+                      <a
+                        href={`https://www.youtube.com/watch?v=${premiereVideo.video_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn promo-cta"
+                      >
+                        <FaPlay style={{ fontSize: '0.7rem' }} />
+                        {isPremiereLive(premiereVideo.premiere_date ? new Date(premiereVideo.premiere_date) : null) ? 'Watch Now' : 'Watch Premiere'}
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+
+                {nextShow && (
+                  <motion.div className="promo-card show-card" variants={fadeInRight}>
+                    <div className="show-image-wrap">
+                      <Image
+                        src={(nextShow.flyer_image || '/images/flyer-placeholder.jpg').trim()}
+                        alt={`BNG NappSakk at ${nextShow.venue}`}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                      <div className="show-image-overlay" />
+                    </div>
+                    <div className="show-info">
+                      <span className="promo-badge live-badge-bg">Live Show</span>
+                      <h3 className="promo-title">{nextShow.title}</h3>
+                      <div className="show-details">
+                        <p><FaMapMarkerAlt className="detail-icon" /> {nextShow.venue}</p>
+                        <p><FaCalendarAlt className="detail-icon" /> {new Date(nextShow.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                        {nextShow.time && <p><FaClock className="detail-icon" /> {nextShow.time}</p>}
+                        <p className="show-city">{nextShow.city}, {nextShow.state}</p>
+                      </div>
+                      <Link href="/live" className="btn promo-cta">
+                        Get Tickets <FaArrowRight style={{ fontSize: '0.75rem' }} />
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+          </section>
+        )}
+      */}
 
       {/* === GOLD DIVIDER === */}
       <AnimateOnScroll variants={lineGrow} style={{ transformOrigin: 'center' }}>
